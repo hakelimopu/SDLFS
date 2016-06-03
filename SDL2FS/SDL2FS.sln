@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SDL2FS", "SDL2FS.fsproj", "{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SDL2FS.TestClient", "..\SDL2FS.TestClient\SDL2FS.TestClient.fsproj", "{3308B90A-8D3E-481A-9B78-78361D24E97A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Debug|x64.ActiveCfg = Debug|x64
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Debug|x64.Build.0 = Debug|x64
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Release|x64.ActiveCfg = Release|x64
+		{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}.Release|x64.Build.0 = Release|x64
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Debug|x64.ActiveCfg = Debug|x64
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Debug|x64.Build.0 = Debug|x64
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Release|x64.ActiveCfg = Release|x64
+		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
