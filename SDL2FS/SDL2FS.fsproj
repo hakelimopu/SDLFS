@@ -101,6 +101,7 @@
     <Compile Include="Video.fs" />
     <Compile Include="Window.fs" />
     <Compile Include="MessageBox.fs" />
+    <Compile Include="Joystick.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

@@ -62,10 +62,6 @@ module GameController =
         | Enable = 1
 
     module private Native =
-        //belongs elsewhere... in joystick
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_NumJoysticks()//TODO: does this belong here?
-
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern IntPtr SDL_GameControllerOpen(int joystick_index)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
@@ -115,10 +111,7 @@ module GameController =
         //extern SDL_GameControllerButtonBind SDL_GameControllerGetBindForButton(SDL_GameController *gamecontroller, SDL_GameControllerButton button)
 
     let create (index: int)  : Controller =
-        let n = Native.SDL_NumJoysticks()//TODO: why is this here?
-        let ptr = Native.SDL_GameControllerOpen(index) 
-        
-        new Controller(ptr, fun p -> Native.SDL_GameControllerClose(p))
+        new Controller(Native.SDL_GameControllerOpen(index), fun p -> Native.SDL_GameControllerClose(p))
 
     let isController (index: int) : bool =
         Native.SDL_IsGameController(index) <> 0
