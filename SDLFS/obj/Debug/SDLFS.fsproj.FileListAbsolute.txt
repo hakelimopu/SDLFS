@@ -1,8 +1,0 @@
-D:\lint\fs\sdlfs\SDLFS\bin\Debug\SDL2.dll
-D:\lint\fs\sdlfs\SDLFS\bin\Debug\SDLFS.XML
-D:\lint\fs\sdlfs\SDLFS\bin\Debug\SDLFS.dll
-D:\lint\fs\sdlfs\SDLFS\bin\Debug\SDLFS.pdb
-D:\lint\fs\sdlfs\SDLFS\bin\Debug\FSharp.Core.dll
-D:\lint\fs\sdlfs\SDLFS\bin\Debug\FSharp.Core.xml
-D:\lint\fs\sdlfs\SDLFS\obj\Debug\SDLFS.dll
-D:\lint\fs\sdlfs\SDLFS\obj\Debug\SDLFS.pdb

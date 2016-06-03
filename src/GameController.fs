@@ -57,6 +57,10 @@ module GameController =
 
     type Controller = SDL.Utility.Pointer
 
+    type EventState =
+        | Ignore = 0
+        | Enable = 1
+
     module private Native =
         //belongs elsewhere... in joystick
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
@@ -68,15 +72,6 @@ module GameController =
         extern void SDL_GameControllerClose(IntPtr gamecontroller)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GameControllerAddMappingsFromRW(IntPtr rw, int freerw )
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GameControllerAddMapping(IntPtr mappingString )
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern IntPtr SDL_GameControllerMapping( IntPtr gamecontroller )
-
-        //extern IntPtr SDL_GameControllerMappingForGUID( SDL_JoystickGUID guid )
-
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_IsGameController(int joystick_index)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern IntPtr SDL_GameControllerNameForIndex(int joystick_index)
@@ -84,9 +79,6 @@ module GameController =
         extern IntPtr SDL_GameControllerName(IntPtr gamecontroller)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_GameControllerGetAttached(IntPtr gamecontroller)
-
-        //extern IntPtr SDL_GameControllerFromInstanceID(SDL_JoystickID joyid)
-        //extern SDL_Joystick *SDL_GameControllerGetJoystick(SDL_GameController *gamecontroller)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_GameControllerEventState(int state)
@@ -107,6 +99,18 @@ module GameController =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern uint8 SDL_GameControllerGetButton(IntPtr gamecontroller,int button)
 
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern int SDL_GameControllerAddMappingsFromRW(IntPtr rw, int freerw )
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern int SDL_GameControllerAddMapping(IntPtr mappingString )
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern IntPtr SDL_GameControllerMapping(IntPtr gamecontroller )
+
+        //extern IntPtr SDL_GameControllerMappingForGUID( SDL_JoystickGUID guid )
+
+        //extern IntPtr SDL_GameControllerFromInstanceID(SDL_JoystickID joyid)
+        //extern SDL_Joystick *SDL_GameControllerGetJoystick(SDL_GameController *gamecontroller)
+
         //extern SDL_GameControllerButtonBind SDL_GameControllerGetBindForAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis)
         //extern SDL_GameControllerButtonBind SDL_GameControllerGetBindForButton(SDL_GameController *gamecontroller, SDL_GameControllerButton button)
 
@@ -115,3 +119,54 @@ module GameController =
         let ptr = Native.SDL_GameControllerOpen(index) 
         
         new Controller(ptr, fun p -> Native.SDL_GameControllerClose(p))
+
+    let isController (index: int) : bool =
+        Native.SDL_IsGameController(index) <> 0
+
+    let getNameForIndex (index: int) : string =
+        Native.SDL_GameControllerNameForIndex(index)
+        |> Utility.intPtrToStringAscii
+
+    let getName (controller: Controller) : string =
+        Native.SDL_GameControllerName(controller.Pointer)
+        |> Utility.intPtrToStringAscii
+
+    let isAttached (controller: Controller) : bool = 
+        Native.SDL_GameControllerGetAttached(controller.Pointer) <> 0
+
+    let setEventState (eventState: EventState) : bool =
+        if eventState = EventState.Enable then
+            Native.SDL_GameControllerEventState(1) = 1
+        else
+            Native.SDL_GameControllerEventState(0) = 0
+
+    let getEventState () : EventState =
+        match Native.SDL_GameControllerEventState(-1) with
+        | 1 -> EventState.Enable
+        | _ -> EventState.Ignore
+
+    let update = Native.SDL_GameControllerUpdate
+
+    let getAxisFromName (name:string) :Axis = 
+        name
+        |> Utility.withAsciiString (fun ptr->Native.SDL_GameControllerGetAxisFromString(ptr))
+        |> LanguagePrimitives.EnumOfValue
+
+    let getAxisName (axis: Axis) : string =
+        Native.SDL_GameControllerGetStringForAxis(axis |> int)
+        |> Utility.intPtrToStringAscii
+
+    let getAxisValue (axis:Axis)  (controller:Controller):int16 =
+        Native.SDL_GameControllerGetAxis(controller.Pointer, axis |> int)
+
+    let getButtonFromName (name:string) :Axis = 
+        name
+        |> Utility.withAsciiString (fun ptr->Native.SDL_GameControllerGetButtonFromString(ptr))
+        |> LanguagePrimitives.EnumOfValue
+
+    let getButtonName (button: Button) : string =
+        Native.SDL_GameControllerGetStringForButton(button |> int)
+        |> Utility.intPtrToStringAscii
+
+    let getButtonValue (button: Button) (controller:Controller):uint8 =
+        Native.SDL_GameControllerGetButton(controller.Pointer, button |> int)
