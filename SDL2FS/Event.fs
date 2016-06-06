@@ -562,8 +562,6 @@ module Event =
         Which:int32     ;
         Hat:uint8       ;
         Value:uint8     ;
-        Padding1:uint8  ;
-        Padding2:uint8  ;
         }
 
     type JoyButtonEvent=
@@ -572,8 +570,6 @@ module Event =
         Which:int32     ;
         Button:uint8    ;
         State:uint8     ;
-        Padding1:uint8  ;
-        Padding2:uint8  ;
         }
 
     type JoyDeviceEvent=
@@ -682,12 +678,12 @@ module Event =
         | MouseButtonUp of MouseButtonEvent
         | MouseWheel of MouseWheelEvent              
 
-        | AppTerminating
-        | AppLowmemory
-        | AppWillEnterBackground
-        | AppDidEnterBackground
-        | AppWillEnterForeground
-        | AppDidEnterForeground
+        | AppTerminating//TODO
+        | AppLowmemory//TODO
+        | AppWillEnterBackground//TODO
+        | AppDidEnterBackground//TODO
+        | AppWillEnterForeground//TODO
+        | AppDidEnterForeground//TODO
 
         | WindowEvent of WindowEvent       
         | SysWMEvent of SysWMEvent           
@@ -704,6 +700,7 @@ module Event =
         | JoyDeviceAdded of JoyDeviceEvent           
         | JoyDeviceRemoved of JoyDeviceEvent      
        
+        //toXXXX/isXXXX for Event done through here
         | ControllerAxisMotion of ControllerAxisEvent    
         | ControllerButtonDown of ControllerButtonEvent     
         | ControllerButtonUp of ControllerButtonEvent       
@@ -762,6 +759,58 @@ module Event =
             | _         -> false
         member this.isMouseButtonEvent : bool =
             this.isMouseButtonDownEvent || this.isMouseButtonUpEvent
+        member this.isMouseWheelEvent : bool =
+            match this with
+            | MouseWheel _ -> true
+            | _         -> false
+        member this.isWindowEvent : bool =
+            match this with
+            | WindowEvent _ -> true
+            | _         -> false
+        member this.isSysWMEvent : bool =
+            match this with
+            | SysWMEvent _ -> true
+            | _         -> false
+        member this.isTextEditingEvent : bool =
+            match this with
+            | TextEditing _ -> true
+            | _         -> false
+        member this.isTextInputEvent : bool =
+            match this with
+            | TextInput _ -> true
+            | _         -> false
+        member this.isJoyAxisEvent : bool =
+            match this with
+            | JoyAxisMotion _ -> true
+            | _         -> false
+        member this.isJoyBallEvent : bool =
+            match this with
+            | JoyBallMotion _ -> true
+            | _         -> false
+        member this.isJoyHatEvent : bool =
+            match this with
+            | JoyHatMotion _ -> true
+            | _         -> false
+        member this.isJoyButtonDownEvent : bool =
+            match this with
+            | JoyButtonDown _ -> true
+            | _         -> false
+        member this.isJoyButtonUpEvent : bool =
+            match this with
+            | JoyButtonUp _ -> true
+            | _         -> false
+        member this.isJoyButtonEvent : bool =
+            this.isJoyButtonDownEvent || this.isJoyButtonUpEvent
+        member this.isJoyDeviceAddedEvent : bool =
+            match this with
+            | JoyDeviceAdded _ -> true
+            | _         -> false
+        member this.isJoyDeviceRemovedEvent : bool =
+            match this with
+            | JoyDeviceRemoved _ -> true
+            | _         -> false
+        member this.isJoyDeviceEvent : bool =
+            this.isJoyDeviceAddedEvent || this.isJoyDeviceRemovedEvent
 
         member this.toQuitEvent : QuitEvent option =
             match this with
@@ -781,6 +830,49 @@ module Event =
             | MouseButtonDown m -> Some m
             | MouseButtonUp m   -> Some m
             | _                 -> None
+        member this.toMouseWheelEvent : MouseWheelEvent option =
+            match this with
+            | MouseWheel m -> Some m
+            | _            -> None
+        member this.toWindowEvent : WindowEvent option =
+            match this with
+            | WindowEvent w -> Some w
+            | _             -> None
+        member this.toSysWMEvent : SysWMEvent option =
+            match this with
+            | SysWMEvent s -> Some s
+            | _            -> None
+        member this.toTextEditingEvent : TextEditingEvent option =
+            match this with
+            | TextEditing e -> Some e
+            | _             -> None
+        member this.toTextInputEvent : TextInputEvent option =
+            match this with
+            | TextInput i -> Some i
+            | _           -> None
+        member this.toJoyAxisEvent : JoyAxisEvent option =
+            match this with
+            | JoyAxisMotion j -> Some j
+            | _               -> None
+        member this.toJoyBallEvent : JoyBallEvent option =
+            match this with 
+            | JoyBallMotion j -> Some j
+            | _               -> None
+        member this.toJoyHatEvent : JoyHatEvent option =
+            match this with
+            | JoyHatMotion j -> Some j
+            | _              -> None
+        member this.toJoyButtonEvent : JoyButtonEvent option =
+            match this with
+            | JoyButtonDown j -> Some j
+            | JoyButtonUp j   -> Some j
+            | _ -> None
+        member this.toJoyDeviceEvent : JoyDeviceEvent option =
+            match this with
+            | JoyDeviceAdded j   -> Some j
+            | JoyDeviceRemoved j -> Some j
+            | _                  -> None
+
 
     let private toQuitEvent (event:SDL_QuitEvent) :QuitEvent =
         {Timestamp = event.Timestamp}

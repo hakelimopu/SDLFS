@@ -92,24 +92,28 @@ module Log =
     let resetPriorities () =
         Native.SDL_LogResetPriorities()
 
+    //keep log functions from exploding!
+    let private escapeLogString (message:string) : string =
+        message.Replace("%","%%")
+
     let verbose (category:int) (message:string) :unit =
-        Native.SDL_LogVerbose (category, message)
+        Native.SDL_LogVerbose (category, message |> escapeLogString)
 
     let debug (category:int) (message:string) :unit =
-        Native.SDL_LogDebug (category, message)
+        Native.SDL_LogDebug (category, message |> escapeLogString)
 
     let error (category:int) (message:string) :unit =
-        Native.SDL_LogError (category, message)
+        Native.SDL_LogError (category, message |> escapeLogString)
 
     let info (category:int) (message:string) :unit =
-        Native.SDL_LogInfo (category, message)
+        Native.SDL_LogInfo (category, message |> escapeLogString)
 
     let warn (category:int) (message:string) :unit =
-        Native.SDL_LogWarn (category, message)
+        Native.SDL_LogWarn (category, message |> escapeLogString)
 
     let critical (category:int) (message:string) :unit =
-        Native.SDL_LogCritical (category, message)
+        Native.SDL_LogCritical (category, message |> escapeLogString)
 
     let message (priority:Priority) (category:int) (message:string) :unit =
-        Native.SDL_LogMessage (category, priority, message)
+        Native.SDL_LogMessage (category, priority, message |> escapeLogString)
 
