@@ -150,3 +150,18 @@ module Joystick =
     let getAxis (joystick:Joystick) (axis:int) : int16 =
         Native.SDL_JoystickGetAxis(joystick.Pointer, axis)
 
+    let getBall (joystick:Joystick) (ball:int) : (int*int) =
+        let mutable x:int = 0
+        let mutable y:int = 0
+
+        Native.SDL_JoystickGetBall(joystick.Pointer, ball, &&x, &&y)
+        |> ignore
+
+        (x,y)
+
+    let getButton (joystick:Joystick) (button:int) : byte =
+        Native.SDL_JoystickGetButton(joystick.Pointer, button)
+
+    let getHat (joystick:Joystick) (hat:int) : byte =
+        Native.SDL_JoystickGetHat(joystick.Pointer, hat)
+

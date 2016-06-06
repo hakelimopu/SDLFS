@@ -748,6 +748,21 @@ module Event =
             | _       -> false
         member this.isKeyEvent : bool =
             this.isKeyDownEvent || this.isKeyUpEvent
+        member this.isMouseMotionEvent : bool =
+            match this with
+            | MouseMotion _ -> true
+            | _         -> false
+        member this.isMouseButtonDownEvent : bool =
+            match this with
+            | MouseButtonDown _ -> true
+            | _         -> false
+        member this.isMouseButtonUpEvent : bool =
+            match this with
+            | MouseButtonUp _ -> true
+            | _         -> false
+        member this.isMouseButtonEvent : bool =
+            this.isMouseButtonDownEvent || this.isMouseButtonUpEvent
+
         member this.toQuitEvent : QuitEvent option =
             match this with
             | Quit q -> Some q
@@ -757,6 +772,15 @@ module Event =
             | KeyUp k   -> Some k
             | KeyDown k -> Some k
             | _         -> None
+        member this.toMouseMotionEvent : MouseMotionEvent option =
+            match this with
+            | MouseMotion m -> Some m
+            | _             -> None
+        member this.toMouseButtonEvent : MouseButtonEvent option =
+            match this with
+            | MouseButtonDown m -> Some m
+            | MouseButtonUp m   -> Some m
+            | _                 -> None
 
     let private toQuitEvent (event:SDL_QuitEvent) :QuitEvent =
         {Timestamp = event.Timestamp}
@@ -819,34 +843,34 @@ module Event =
 
     let private convertEvent (result: bool, event:SDL_Event) =
         match result, (event.Type |> int |> enum<EventType>) with
-        | true, EventType.Quit -> event.Quit |> toQuitEvent |> Quit |> Some
+        | true, EventType.Quit                     -> event.Quit |> toQuitEvent |> Quit |> Some
 
-        | true, EventType.KeyDown -> event.Key |> toKeyboardEvent |> KeyDown |> Some
-        | true, EventType.KeyUp -> event.Key |> toKeyboardEvent |> KeyUp |> Some
+        | true, EventType.KeyDown                  -> event.Key |> toKeyboardEvent |> KeyDown |> Some
+        | true, EventType.KeyUp                    -> event.Key |> toKeyboardEvent |> KeyUp |> Some
 
-        | true, EventType.MouseMotion -> event.Motion |> toMouseMotionEvent |> MouseMotion |> Some
+        | true, EventType.MouseMotion              -> event.Motion |> toMouseMotionEvent |> MouseMotion |> Some
 
-        | true, EventType.MouseButtonDown -> event.Button |> toMouseButtonEvent |> MouseButtonDown |> Some
-        | true, EventType.MouseButtonUp -> event.Button |> toMouseButtonEvent |> MouseButtonUp |> Some
+        | true, EventType.MouseButtonDown          -> event.Button |> toMouseButtonEvent |> MouseButtonDown |> Some
+        | true, EventType.MouseButtonUp            -> event.Button |> toMouseButtonEvent |> MouseButtonUp |> Some
 
-        | true, EventType.MouseWheel -> event.Wheel |> toMouseWheelEvent |> MouseWheel |> Some
+        | true, EventType.MouseWheel               -> event.Wheel |> toMouseWheelEvent |> MouseWheel |> Some
 
-        | true, EventType.AudioDeviceAdded -> event.Adevice |> toAudioDeviceEvent |> AudioDeviceAdded |> Some
-        | true, EventType.AudioDeviceRemoved -> event.Adevice |> toAudioDeviceEvent |> AudioDeviceRemoved |> Some
+        | true, EventType.AudioDeviceAdded         -> event.Adevice |> toAudioDeviceEvent |> AudioDeviceAdded |> Some
+        | true, EventType.AudioDeviceRemoved       -> event.Adevice |> toAudioDeviceEvent |> AudioDeviceRemoved |> Some
 
-        | true, EventType.ControllerAxisMotion -> event.Caxis |> toControllerAxisEvent |> ControllerAxisMotion |> Some
+        | true, EventType.ControllerAxisMotion     -> event.Caxis |> toControllerAxisEvent |> ControllerAxisMotion |> Some
 
-        | true, EventType.ControllerButtonDown -> event.Cbutton |> toControllerButtonEvent |> ControllerButtonDown |> Some
-        | true, EventType.ControllerButtonUp -> event.Cbutton |> toControllerButtonEvent |> ControllerButtonUp |> Some
+        | true, EventType.ControllerButtonDown     -> event.Cbutton |> toControllerButtonEvent |> ControllerButtonDown |> Some
+        | true, EventType.ControllerButtonUp       -> event.Cbutton |> toControllerButtonEvent |> ControllerButtonUp |> Some
 
-        | true, EventType.ControllerDeviceAdded -> event.Cdevice |> toControllerDeviceEvent |> ControllerDeviceAdded |> Some
-        | true, EventType.ControllerDeviceRemoved -> event.Cdevice |> toControllerDeviceEvent |> ControllerDeviceRemoved |> Some
+        | true, EventType.ControllerDeviceAdded    -> event.Cdevice |> toControllerDeviceEvent |> ControllerDeviceAdded |> Some
+        | true, EventType.ControllerDeviceRemoved  -> event.Cdevice |> toControllerDeviceEvent |> ControllerDeviceRemoved |> Some
         | true, EventType.ControllerDeviceRemapped -> event.Cdevice |> toControllerDeviceEvent |> ControllerDeviceRemapped |> Some
 
-        | true, _ -> event.Type |> Other |> Some
-        | _, _ -> None
+        | true, _                                  -> event.Type |> Other |> Some
+        | _, _                                     -> None
     
-    let waitEvent (timeout:int<ms> option) =
+    let wait (timeout:int<ms> option) =
         let mutable event = new SDL_Event()
         let result = 
             match timeout with
@@ -854,8 +878,23 @@ module Event =
             | Some x -> Native.SDL_WaitEventTimeout(&&event,x/1<ms>) = 1
         convertEvent (result,event)
     
-    let pollEvent () =
+    let poll () =
         let mutable event = new SDL_Event()
         let result = Native.SDL_PollEvent(&&event) = 1
         convertEvent (result,event)
 
+    let pump = Native.SDL_PumpEvents
+
+    let register = Native.SDL_RegisterEvents
+
+    let has (eventType:uint32) :bool =
+        Native.SDL_HasEvent(eventType) <> 0
+
+    let hasAny (minType:uint32) (maxType:uint32) : bool =
+        Native.SDL_HasEvents(minType,maxType) <> 0
+
+    let flush (eventType:uint32) =
+        Native.SDL_FlushEvent(eventType)
+
+    let flushAny (minType:uint32) (maxType:uint32) =
+        Native.SDL_FlushEvents(minType,maxType)

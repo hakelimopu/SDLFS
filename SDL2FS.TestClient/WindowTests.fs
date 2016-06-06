@@ -13,7 +13,7 @@ let createWindowTest () =
     let rec eventPump () : unit =
         let event = 
             None
-            |> SDL.Event.waitEvent
+            |> SDL.Event.wait
 
         if event.IsSome && not event.Value.isQuitEvent then 
             eventPump()
@@ -32,16 +32,45 @@ let createFullscreenWindowTest () =
     let rec eventPump () : unit =
         let event = 
             None
-            |> SDL.Event.waitEvent
+            |> SDL.Event.wait
 
-        if event.IsSome && not event.Value.isQuitEvent then 
-            eventPump()
+        if event.IsSome then
+            if event.Value.isKeyDownEvent then
+                if event.Value.toKeyboardEvent.Value.Keysym.Scancode = Keyboard.ScanCode.Escape then
+                    ()
+                else
+                    eventPump()
+            else
+                eventPump()
         else 
             ()
 
     eventPump()
 
+let createDesktopFullscreenWindowTest () = 
+    use system = new SDL.Init.System(SDL.Init.Init.Everything)
+    use window = SDL.Window.create "SDL2FS" (100<SDL.px>, 200<SDL.px>) (640<SDL.px>,480<SDL.px>) SDL.Window.Flags.FullScreenDesktop
 
+    Console.WriteLine()
+    Console.WriteLine("Press escape to stop test.")
+
+    let rec eventPump () : unit =
+        let event = 
+            None
+            |> SDL.Event.wait
+
+        if event.IsSome then
+            if event.Value.isKeyDownEvent then
+                if event.Value.toKeyboardEvent.Value.Keysym.Scancode = Keyboard.ScanCode.Escape then
+                    ()
+                else
+                    eventPump()
+            else
+                eventPump()
+        else 
+            ()
+
+    eventPump()
 
 let rec windowMenu () =
     Console.WriteLine()
@@ -56,6 +85,10 @@ let rec windowMenu () =
     else
         match keyInfo.Key with 
         | ConsoleKey.C -> createWindowTest()
+        | ConsoleKey.F -> createFullscreenWindowTest()
+        | ConsoleKey.D -> createDesktopFullscreenWindowTest()
+        | _ -> ()
+        windowMenu()
 
 
 
