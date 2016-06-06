@@ -733,10 +733,30 @@ module Event =
         | User of UserEvent
 
         | Other of uint32
+
         member this.isQuitEvent : bool =
             match this with
             | Quit _ -> true
-            | _ -> false
+            | _      -> false
+        member this.isKeyDownEvent : bool =
+            match this with
+            | KeyDown _ -> true
+            | _         -> false
+        member this.isKeyUpEvent : bool =
+            match this with
+            | KeyUp _ -> true
+            | _       -> false
+        member this.isKeyEvent : bool =
+            this.isKeyDownEvent || this.isKeyUpEvent
+        member this.toQuitEvent : QuitEvent option =
+            match this with
+            | Quit q -> Some q
+            | _      -> None
+        member this.toKeyboardEvent : KeyboardEvent option =
+            match this with
+            | KeyUp k   -> Some k
+            | KeyDown k -> Some k
+            | _         -> None
 
     let private toQuitEvent (event:SDL_QuitEvent) :QuitEvent =
         {Timestamp = event.Timestamp}
@@ -796,7 +816,6 @@ module Event =
     let private toControllerDeviceEvent (event:SDL_ControllerDeviceEvent) :ControllerDeviceEvent=
         {Timestamp=event.Timestamp;
         Which=event.Which}
-
 
     let private convertEvent (result: bool, event:SDL_Event) =
         match result, (event.Type |> int |> enum<EventType>) with
