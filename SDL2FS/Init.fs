@@ -8,20 +8,20 @@ module Init =
     type MainFunction = nativeint * IntPtr -> nativeint
 
     module private Native =
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_Init(uint32 flags)
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_Quit()
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_InitSubSystem(uint32 flags)
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_QuitSubSystem(uint32 flags)
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern uint32 SDL_WasInit(uint32 flags)
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_SetMainReady()
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_WinRTRunApp(MainFunction mainFunction,IntPtr reserved)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint="SDL_Init")>]
+        extern int SdlInit(uint32 flags)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint="SDL_Quit")>]
+        extern void SdlQuit()
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint="SDL_InitSubSystem")>]
+        extern int SdlInitSubSystem(uint32 flags)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint="SDL_QuitSubSystem")>]
+        extern void SdlQuitSubSystem(uint32 flags)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint="SDL_WasInit")>]
+        extern uint32 SdlWasInit(uint32 flags)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint="SDL_SetMainReady")>]
+        extern void SdlSetMainReady()
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint="SDL_WinRTRunApp")>]
+        extern void SdlWinRTRunApp(MainFunction mainFunction,IntPtr reserved)
 
     [<Flags>]
     type Init =
@@ -37,19 +37,19 @@ module Init =
 
     type System(flags:Init) =
         do
-            Native.SDL_Init(flags |> uint32) |> ignore
+            Native.SdlInit(flags |> uint32) |> ignore
         member this.initSubSystem (flags: Init) :bool =
-            0 = Native.SDL_InitSubSystem(flags |> uint32)
+            0 = Native.SdlInitSubSystem(flags |> uint32)
         member this.quitSubSystem (flags: Init) :unit =
-            Native.SDL_QuitSubSystem(flags |> uint32)
+            Native.SdlQuitSubSystem(flags |> uint32)
         member this.wasInit (flags:Init) :bool =
-            flags = (Native.SDL_WasInit(flags |> uint32) |> int |> enum<Init>)
+            flags = (Native.SdlWasInit(flags |> uint32) |> int |> enum<Init>)
         interface IDisposable with
             member this.Dispose() =
-                Native.SDL_Quit()
+                Native.SdlQuit()
 
     let setMainReady () =
-        Native.SDL_SetMainReady()
+        Native.SdlSetMainReady()
 
     let winRTRunApp (mainFunction:MainFunction) =
-        Native.SDL_WinRTRunApp(mainFunction, IntPtr.Zero)
+        Native.SdlWinRTRunApp(mainFunction, IntPtr.Zero)

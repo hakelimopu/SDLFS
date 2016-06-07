@@ -7,16 +7,16 @@ open System
 
 module Log =
 
-    let CategoryApplication = 0
-    let CategoryError       = 1
-    let CategoryAssert      = 2
-    let CategorySystem      = 3
-    let CategoryAudio       = 4
-    let CategoryVideo       = 5
-    let CategoryRender      = 6
-    let CategoryInput       = 7
-    let CategoryTest        = 8
-    let CategoryReserved1   = 9
+    let CategoryApplication =  0
+    let CategoryError       =  1
+    let CategoryAssert      =  2
+    let CategorySystem      =  3
+    let CategoryAudio       =  4
+    let CategoryVideo       =  5
+    let CategoryRender      =  6
+    let CategoryInput       =  7
+    let CategoryTest        =  8
+    let CategoryReserved1   =  9
     let CategoryReserved2   = 10
     let CategoryReserved3   = 11
     let CategoryReserved4   = 12
