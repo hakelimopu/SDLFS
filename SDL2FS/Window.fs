@@ -55,6 +55,7 @@ module Window =
         | None   = 0x0000
         | Flush  = 0x0001
 
+    [<RequireQualifiedAccess>]
     type Flags = 
         | None               = 0x00000000
         | FullScreen         = 0x00000001
