@@ -61,10 +61,26 @@ type RenderingContext =
 
 let clearScreen (context:RenderingContext) (model:'TModel) : unit =
     context.Renderer
+    |> Render.setDrawColor (255uy, 0uy, 255uy, 255uy)
+    |> ignore
+
+    context.Renderer
     |> Render.clear
     |> ignore
 
+    context.Surface
+    |> Surface.fillRect None {Red=255uy;Green=0uy;Blue=255uy;Alpha=255uy}
+    |> ignore
+
 let presentScreen (context:RenderingContext) (model:'TModel) : unit =
+    context.Texture
+    |> Texture.update None context.Surface
+    |> ignore
+
+    context.Renderer
+    |> Render.copy context.Texture None None
+    |> ignore
+
     context.Renderer
     |> Render.present
 
@@ -81,6 +97,7 @@ type JetLagDirection = Left | Right
 
 type JetLagModel =
     {State:JetLagState;
+    FrameCounter:int<ms>;
     HighScore:int<point>;
     Score:int<point>;
     Direction:JetLagDirection;
@@ -95,8 +112,35 @@ let onEvent (event: Event.Event) (state:'TState) : 'TState option =
     else
         Some state
 
+[<Measure>]type frame
+
+let FramesPerSecond = 10<frame/second>
+let MillisecondsPerFrame = 1000<ms/second> / FramesPerSecond
+
+let addToFrameCounter (delta:int<ms>) (model:JetLagModel) : JetLagModel =
+    if model.State = GameOver then
+        model
+    else
+        {model with FrameCounter = model.FrameCounter + delta}
+
+let rec scrollLines (model:JetLagModel) : JetLagModel =
+    if model.State = Play && model.FrameCounter >= (MillisecondsPerFrame * 1<frame>) then
+        let frameCounter = model.FrameCounter - MillisecondsPerFrame * 1<frame>
+        //scroll blocks
+        //scroll tail
+        //
+        {model with FrameCounter = frameCounter}
+        |> scrollLines
+    else
+        model
+
+let onUpdateModel (delta:int<ms>) (model:JetLagModel) : JetLagModel =
+    model
+    |> addToFrameCounter (delta)
+    |> scrollLines
+
 let onUpdate (delta:TimeSpan) (state:State<JetLagModel>) : State<JetLagModel>=
-    state
+    {state with Model=state.Model |> onUpdateModel (delta.Milliseconds * 1<ms>)}
 
 let onDraw (delta:TimeSpan) (state:State<'TModel>) : unit =
     renderView state.Model state.View
@@ -107,6 +151,7 @@ let JetLagTailLength =  6<cell>
 
 let resetJetLagModel (model:JetLagModel) : JetLagModel =
     {model with
+        FrameCounter=0<ms>;
         Blocks=[1..(JetLagColumns/1<cell>)] |> Seq.map(fun e-> 0<cell>);
         Tail=[1..(JetLagTailLength/1<cell>)] |> Seq.map(fun e-> JetLagColumns / 2 );
         Direction=Right;
@@ -114,6 +159,7 @@ let resetJetLagModel (model:JetLagModel) : JetLagModel =
 
 let createJetLagModel () :JetLagModel =
     {State=GameOver;
+    FrameCounter=0<ms>;
     HighScore=0<point>;
     LeftWall=0<cell>;
     RightWall=JetLagColumns - 1<cell>;
