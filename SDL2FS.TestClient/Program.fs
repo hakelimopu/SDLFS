@@ -146,15 +146,31 @@ let renderWalls (context:RenderingContext) (model:JetLagModel) : unit =
     |> Surface.fillRect ({Rectangle.X= model.RightWall * context.ScaleX; Y= 0<cell> * context.ScaleY; Width=context.ScaleX * 1<cell>; Height=context.ScaleY * rows} |> Some) blue
     |> ignore
 
+let JetLagColumns    = 40<cell>
+let JetLagRows       = 30<cell>
+let JetLagTailLength =  6<cell>
+
+let resetJetLagModel (model:JetLagModel) : JetLagModel =
+    {model with
+        FrameCounter=0<ms>;
+        Blocks=[1..(JetLagRows/1<cell>)] |> Seq.map(fun e-> 0<cell>);
+        Tail=[1..(JetLagTailLength/1<cell>)] |> Seq.map(fun e-> JetLagColumns / 2 );
+        Direction=Right;
+        Score=0<point>}
+
 let onEventGameOver (event: Event.Event) (state:State<JetLagModel>) : State<JetLagModel> option = 
     match event with
     | Event.KeyDown k when k.Keysym.Scancode = Keyboard.ScanCode.Space ->
-        Some state
+        Some {state with Model={(state.Model |> resetJetLagModel) with State = Play}}
     | _ -> 
         Some state
 
 let onEventPlay (event: Event.Event) (state:State<JetLagModel>) : State<JetLagModel> option = 
     match event with
+    | Event.KeyDown k when k.Keysym.Scancode = Keyboard.ScanCode.Left ->
+        Some {state with Model={state.Model with Direction=Left}}
+    | Event.KeyDown k when k.Keysym.Scancode = Keyboard.ScanCode.Right ->
+        Some {state with Model={state.Model with Direction=Right}}
     | _ -> 
         Some state
 
@@ -172,7 +188,7 @@ let onEvent (event: Event.Event) (state:State<JetLagModel>) : State<JetLagModel>
 
 [<Measure>]type frame
 
-let FramesPerSecond = 10<frame/second>
+let FramesPerSecond = 15<frame/second>
 let MillisecondsPerFrame = 1000<ms/second> / FramesPerSecond
 
 let addToFrameCounter (delta:int<ms>) (model:JetLagModel) : JetLagModel =
@@ -186,19 +202,19 @@ let rec scrollLines (random:Random) (model:JetLagModel) : JetLagModel =
         let frameCounter = model.FrameCounter - MillisecondsPerFrame * 1<frame>
         //scroll blocks
         let blocks = 
-            model.Blocks
-            |> Seq.skip 1
-            |> Seq.takeWhile (fun e-> true)
-            |> Seq.append [random.Next((model.LeftWall/1<cell>)+1, (model.RightWall/1<cell>)) * 1<cell>]
+            [random.Next((model.LeftWall/1<cell>)+1, (model.RightWall/1<cell>)) * 1<cell>]
+            |> Seq.append
+                (model.Blocks
+                |> Seq.skip 1)
         //scroll tail
         let head = (model.Tail |> Seq.last) + (if model.Direction = Left then (-1<cell>) else 1<cell>)
         let tail = 
-            model.Tail
-            |> Seq.skip 1
-            |> Seq.takeWhile (fun e-> true)
-            |> Seq.append [head]
+            [head]
+            |> Seq.append
+                (model.Tail
+                |> Seq.skip 1)
         //check for game over
-        let state = if (blocks |> Seq.item ((tail |> Seq.length) - 1))=head then GameOver else Play
+        let state = if (blocks |> Seq.item ((tail |> Seq.length) - 1))=head || head=model.LeftWall || head=model.RightWall  then GameOver else Play
         {model with FrameCounter = frameCounter; Tail = tail; Blocks = blocks; State = state}
         |> scrollLines random
     else
@@ -214,18 +230,6 @@ let onUpdate (random:Random) (delta:TimeSpan) (state:State<JetLagModel>) : State
 
 let onDraw (delta:TimeSpan) (state:State<'TModel>) : unit =
     renderView state.Model state.View
-
-let JetLagColumns    = 40<cell>
-let JetLagRows       = 30<cell>
-let JetLagTailLength =  6<cell>
-
-let resetJetLagModel (model:JetLagModel) : JetLagModel =
-    {model with
-        FrameCounter=0<ms>;
-        Blocks=[1..(JetLagColumns/1<cell>)] |> Seq.map(fun e-> 0<cell>);
-        Tail=[1..(JetLagTailLength/1<cell>)] |> Seq.map(fun e-> JetLagColumns / 2 );
-        Direction=Right;
-        Score=0<point>}
 
 let createJetLagModel () :JetLagModel =
     {State=GameOver;
