@@ -1,6 +1,10 @@
 ﻿open SDL
 
 open System
+open Geometry
+open Pixel
+open SDL
+
 
 let rec eventPump 
         (lastFrameTime:DateTimeOffset) 
@@ -69,7 +73,7 @@ let clearScreen (context:RenderingContext) (model:'TModel) : unit =
     |> ignore
 
     context.Surface
-    |> Surface.fillRect None {Red=255uy;Green=0uy;Blue=255uy;Alpha=255uy}
+    |> Surface.fillRect None {Red=0uy;Green=0uy;Blue=0uy;Alpha=255uy}
     |> ignore
 
 let presentScreen (context:RenderingContext) (model:'TModel) : unit =
@@ -106,11 +110,65 @@ type JetLagModel =
     Blocks:int<cell> seq;
     Tail:int<cell> seq}
 
-let onEvent (event: Event.Event) (state:'TState) : 'TState option =
+let renderBlocks (context:RenderingContext) (model:JetLagModel) : unit =
+    (0<cell>, model.Blocks)
+    ||> Seq.fold 
+        (fun row column -> 
+            context.Surface
+            |> Surface.fillRect ({Rectangle.X= column * context.ScaleX; Y= row * context.ScaleY; Width=context.ScaleX * 1<cell>; Height=context.ScaleY * 1<cell>} |> Some) {Color.Red = 255uy; Green=255uy; Blue=255uy; Alpha=255uy}
+            |> ignore
+            row + 1<cell>)
+    |> ignore
+
+let renderTail (context:RenderingContext) (model:JetLagModel) : unit =
+    let headPosition = ((model.Tail |> Seq.length) - 1) * 1<cell>
+    (0<cell>, model.Tail)
+    ||> Seq.fold 
+        (fun row column -> 
+            let color = 
+                if row=headPosition then
+                    {Color.Red = 255uy; Green=0uy; Blue=0uy; Alpha=255uy}
+                else
+                    {Color.Red = 255uy; Green=255uy; Blue=0uy; Alpha=255uy}
+            context.Surface
+            |> Surface.fillRect ({Rectangle.X= column * context.ScaleX; Y= row * context.ScaleY; Width=context.ScaleX * 1<cell>; Height=context.ScaleY * 1<cell>} |> Some) color
+            |> ignore
+            row + 1<cell>)
+    |> ignore
+
+let renderWalls (context:RenderingContext) (model:JetLagModel) : unit =
+    let blue = {Color.Red = 0uy; Green=0uy; Blue=255uy; Alpha=255uy}
+    let rows = (model.Blocks |> Seq.length) * 1<cell>
+    context.Surface
+    |> Surface.fillRect ({Rectangle.X= model.LeftWall * context.ScaleX; Y= 0<cell> * context.ScaleY; Width=context.ScaleX * 1<cell>; Height=context.ScaleY * rows} |> Some) blue
+    |> ignore
+    context.Surface
+    |> Surface.fillRect ({Rectangle.X= model.RightWall * context.ScaleX; Y= 0<cell> * context.ScaleY; Width=context.ScaleX * 1<cell>; Height=context.ScaleY * rows} |> Some) blue
+    |> ignore
+
+let onEventGameOver (event: Event.Event) (state:State<JetLagModel>) : State<JetLagModel> option = 
+    match event with
+    | Event.KeyDown k when k.Keysym.Scancode = Keyboard.ScanCode.Space ->
+        Some state
+    | _ -> 
+        Some state
+
+let onEventPlay (event: Event.Event) (state:State<JetLagModel>) : State<JetLagModel> option = 
+    match event with
+    | _ -> 
+        Some state
+
+let eventMap =
+    [(GameOver,onEventGameOver);(Play,onEventPlay);]
+    |> Map.ofSeq
+
+let onEvent (event: Event.Event) (state:State<JetLagModel>) : State<JetLagModel> option =
     if event.isQuitEvent then
         None
     else
-        Some state
+        eventMap
+        |> Map.tryFind (state.Model.State)
+        |> Option.bind(fun handler-> handler event state)
 
 [<Measure>]type frame
 
@@ -123,24 +181,36 @@ let addToFrameCounter (delta:int<ms>) (model:JetLagModel) : JetLagModel =
     else
         {model with FrameCounter = model.FrameCounter + delta}
 
-let rec scrollLines (model:JetLagModel) : JetLagModel =
+let rec scrollLines (random:Random) (model:JetLagModel) : JetLagModel =
     if model.State = Play && model.FrameCounter >= (MillisecondsPerFrame * 1<frame>) then
         let frameCounter = model.FrameCounter - MillisecondsPerFrame * 1<frame>
         //scroll blocks
+        let blocks = 
+            model.Blocks
+            |> Seq.skip 1
+            |> Seq.takeWhile (fun e-> true)
+            |> Seq.append [random.Next((model.LeftWall/1<cell>)+1, (model.RightWall/1<cell>)) * 1<cell>]
         //scroll tail
-        //
-        {model with FrameCounter = frameCounter}
-        |> scrollLines
+        let head = (model.Tail |> Seq.last) + (if model.Direction = Left then (-1<cell>) else 1<cell>)
+        let tail = 
+            model.Tail
+            |> Seq.skip 1
+            |> Seq.takeWhile (fun e-> true)
+            |> Seq.append [head]
+        //check for game over
+        let state = if (blocks |> Seq.item ((tail |> Seq.length) - 1))=head then GameOver else Play
+        {model with FrameCounter = frameCounter; Tail = tail; Blocks = blocks; State = state}
+        |> scrollLines random
     else
         model
 
-let onUpdateModel (delta:int<ms>) (model:JetLagModel) : JetLagModel =
+let onUpdateModel (random:Random) (delta:int<ms>) (model:JetLagModel) : JetLagModel =
     model
     |> addToFrameCounter (delta)
-    |> scrollLines
+    |> scrollLines random
 
-let onUpdate (delta:TimeSpan) (state:State<JetLagModel>) : State<JetLagModel>=
-    {state with Model=state.Model |> onUpdateModel (delta.Milliseconds * 1<ms>)}
+let onUpdate (random:Random) (delta:TimeSpan) (state:State<JetLagModel>) : State<JetLagModel>=
+    {state with Model=state.Model |> onUpdateModel random (delta.Milliseconds * 1<ms>)}
 
 let onDraw (delta:TimeSpan) (state:State<'TModel>) : unit =
     renderView state.Model state.View
@@ -175,7 +245,7 @@ let ScreenHeight = 480<px>
 let runGame () =
     use system = new Init.System(Init.Init.Video ||| Init.Init.Events)
 
-    use window = Window.create "Test!" Window.Position.Centered (ScreenWidth,ScreenHeight) Window.Flags.None
+    use window = Window.create "JetLag" Window.Position.Centered (ScreenWidth,ScreenHeight) Window.Flags.None
 
     use renderer = Render.create window -1 Render.Flags.Accelerated
 
@@ -183,13 +253,24 @@ let runGame () =
 
     use texture = Texture.create Pixel.RGB888Format Texture.Access.Streaming (ScreenWidth,ScreenHeight) renderer
 
-    renderer |> Render.setLogicalSize (ScreenWidth,ScreenHeight) |> ignore
+    renderer 
+    |> Render.setLogicalSize (ScreenWidth,ScreenHeight) 
+    |> ignore
 
     let context = {Renderer = renderer; Texture = texture; Surface = surface; ScaleX = ScreenWidth / JetLagColumns; ScaleY = ScreenHeight / JetLagRows}
 
-    let state = {Model=createJetLagModel();View=Composite [Single (clearScreen context); Single (presentScreen context)]}
+    let state = 
+        {Model=createJetLagModel();
+        View=Composite 
+            [Single (clearScreen context); 
+            Single (renderBlocks context); 
+            Single (renderWalls context); 
+            Single (renderTail context); 
+            Single (presentScreen context)]}
 
-    eventPump DateTimeOffset.Now Event.poll onIdle onEvent onUpdate onDraw state
+    let random = Random()
+
+    eventPump DateTimeOffset.Now Event.poll onIdle onEvent (onUpdate random) onDraw state
 
 
 [<EntryPoint>]
