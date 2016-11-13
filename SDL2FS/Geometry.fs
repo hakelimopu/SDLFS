@@ -37,9 +37,9 @@ module Geometry =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_IntersectRectAndLine(SDL_Rect* rect, int* X1, int* Y1, int* X2, int* Y2)//TODO
 
-    type Point = {X: int<px>; Y: int<px>}
+    type Point = {X: int; Y: int}
 
-    type Rectangle = {X: int<px>; Y: int<px>; Width: int<px>; Height: int<px>}
+    type Rectangle = {X: int; Y: int; Width: int; Height: int}
 
     let internal rectangleToSDL_Rect (r:Rectangle) :SDL_Rect =
         let mutable result = new SDL_Rect()
@@ -67,10 +67,10 @@ module Geometry =
         result
 
     let internal sdl_RectToRectangle (r:SDL_Rect) :Rectangle =
-        {X = r.x * 1<px>; Y=r.y * 1<px>; Width=r.w * 1<px>; Height=r.h * 1<px>}
+        {X = r.x * 1; Y=r.y * 1; Width=r.w * 1; Height=r.h * 1}
 
     let internal sdl_PointToPoint (p:SDL_Point) :Point =
-        {X = p.x * 1<px>; Y=p.y * 1<px>}
+        {X = p.x * 1; Y=p.y * 1}
 
     let pointInRect (point: Point) (rectangle:Rectangle) :bool =
         point.X >= rectangle.X && point.Y >=rectangle.Y && point.X < (rectangle.X + rectangle.Width) && point.Y < (rectangle.Y + rectangle.Height)
@@ -78,7 +78,7 @@ module Geometry =
     let isEmpty (rectangle:Rectangle option) :bool =
         match rectangle with
         | None -> true
-        | Some r -> r.Width <= 0<px> || r.Height <=0<px>
+        | Some r -> r.Width <= 0 || r.Height <=0
 
 
     let equals (first:Rectangle option) (second:Rectangle option) : bool =

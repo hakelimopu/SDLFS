@@ -121,8 +121,8 @@ module Surface =
         extern int SDL_LowerBlitScaled(IntPtr src, IntPtr srcrect, IntPtr dst, IntPtr dstrect)
 
 
-    let createRGB (width:int<px>,height:int<px>,depth:int<bit/px>) (rmask:uint32,gmask:uint32,bmask:uint32,amask:uint32) :Surface=
-        let ptr = Native.SDL_CreateRGBSurface(0u,width/1<px>,height/1<px>,depth/1<bit/px>,rmask,gmask,bmask,amask)
+    let createRGB (width:int,height:int,depth:int) (rmask:uint32,gmask:uint32,bmask:uint32,amask:uint32) :Surface=
+        let ptr = Native.SDL_CreateRGBSurface(0u,width/1,height/1,depth/1,rmask,gmask,bmask,amask)
         new SDL.Utility.Pointer(ptr, Native.SDL_FreeSurface)
 
     let private getFormat (surface:Surface) :IntPtr =

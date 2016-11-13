@@ -50,8 +50,8 @@ module Render =
          {Name:string;
          Flags:Flags;
          TextureFormats:seq<uint32>;
-         MaximumTextureWidth:int<px>;
-         MaximumTextureHeight:int<px>}
+         MaximumTextureWidth:int;
+         MaximumTextureHeight:int}
                                            
     module private Native =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
@@ -152,7 +152,7 @@ module Render =
     let setDrawColor (r, g, b, a) (renderer:Renderer) =
         0 = Native.SDL_SetRenderDrawColor(renderer.Pointer,r,g,b,a)
 
-    let setLogicalSize (w:int<px>,h:int<px>) (renderer:Renderer) =
+    let setLogicalSize (w:int,h:int) (renderer:Renderer) =
         0 = Native.SDL_RenderSetLogicalSize(renderer.Pointer,w |> int,h |> int)
 
     let copy (texture:SDL.Texture.Texture) (srcrect:SDL.Geometry.Rectangle option) (dstrect:SDL.Geometry.Rectangle option) (renderer:Renderer) =

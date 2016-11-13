@@ -185,8 +185,8 @@ module Pixel =
     type PixelFormatInfo =
         {Format: uint32;
         Palette: Palette;
-        BitsPerPixel: int<bit/px>;
-        BytesPerPixel: int<bytes/px>;
+        BitsPerPixel: int;
+        BytesPerPixel: int;
         RMask: uint32;
         GMask: uint32;
         BMask: uint32;
@@ -196,19 +196,19 @@ module Pixel =
         Native.SDL_GetPixelFormatName(format)
         |> SDL.Utility.intPtrToStringUtf8
 
-    let formatEnumToMasks (formatEnum: uint32) : (int<bit/px>*uint32*uint32*uint32*uint32) option =
+    let formatEnumToMasks (formatEnum: uint32) : (int*uint32*uint32*uint32*uint32) option =
         let mutable bpp=0
         let mutable rmask=0u
         let mutable gmask=0u
         let mutable bmask=0u
         let mutable amask=0u
         if Native.SDL_PixelFormatEnumToMasks(formatEnum,&&bpp,&&rmask,&&gmask,&&bmask,&&amask) <> 0 then
-            Some (bpp*1<bit/px>,rmask,gmask,bmask,amask)
+            Some (bpp*1,rmask,gmask,bmask,amask)
         else
             None
 
-    let masksToFormatEnum (bpp:int<bit/px>,rmask:uint32,gmask:uint32,bmask:uint32,amask:uint32) :uint32 =
-        Native.SDL_MasksToPixelFormatEnum(bpp/1<bit/px>,rmask,gmask,bmask,amask)
+    let masksToFormatEnum (bpp:int,rmask:uint32,gmask:uint32,bmask:uint32,amask:uint32) :uint32 =
+        Native.SDL_MasksToPixelFormatEnum(bpp/1,rmask,gmask,bmask,amask)
 
     let alloc (formatEnum: uint32) :PixelFormat =
         Native.SDL_AllocFormat formatEnum

@@ -228,17 +228,17 @@ module Window =
     type Position =
         | Undefined
         | Centered
-        | Absolute of int<px> * int<px>
+        | Absolute of int * int
 
-    let create (title:string) (position:Position) (w:int<px>,h:int<px>) (flags:Flags) :Window =
+    let create (title:string) (position:Position) (w:int,h:int) (flags:Flags) :Window =
         let windowX, windowY = 
             match position with
             | Position.Undefined -> (0x1FFF0000,0x1FFF0000)
             | Position.Centered -> (0x2FFF0000,0x2FFF0000)
-            | Position.Absolute (x,y) -> (x/1<px>, y/1<px>)
+            | Position.Absolute (x,y) -> (x/1, y/1)
         let ptr = 
             title
-            |> SDL.Utility.withUtf8String (fun ptr -> Native.SDL_CreateWindow(ptr, windowX, windowY, w /1<px>, h /1<px>, flags |> uint32))
+            |> SDL.Utility.withUtf8String (fun ptr -> Native.SDL_CreateWindow(ptr, windowX, windowY, w /1, h /1, flags |> uint32))
         new SDL.Utility.Pointer(ptr, Native.SDL_DestroyWindow)
 
     let createFrom (data:IntPtr) :Window =
@@ -270,23 +270,23 @@ module Window =
         Native.SDL_GetWindowTitle window.Pointer
         |> SDL.Utility.intPtrToStringUtf8
 
-    let setSize (w:int<px>,h:int<px>) (window:Window) =
-        Native.SDL_SetWindowSize(window.Pointer, w/1<px>, h/1<px>)
+    let setSize (w:int,h:int) (window:Window) =
+        Native.SDL_SetWindowSize(window.Pointer, w/1, h/1)
 
-    let getSize (window:Window) :int<px> * int<px> =
+    let getSize (window:Window) :int * int =
         let mutable x = 0
         let mutable y = 0
         Native.SDL_GetWindowSize (window.Pointer, &&x, &&y)
-        (x * 1<px>, y * 1<px>)
+        (x * 1, y * 1)
 
-    let setPosition (x:int<px>,y:int<px>) (window:Window) =
-        Native.SDL_SetWindowPosition(window.Pointer, x/1<px>, y/1<px>)
+    let setPosition (x:int,y:int) (window:Window) =
+        Native.SDL_SetWindowPosition(window.Pointer, x/1, y/1)
 
-    let getPosition (window:Window) :int<px> * int<px> =
+    let getPosition (window:Window) :int * int =
         let mutable x = 0
         let mutable y = 0
         Native.SDL_GetWindowPosition (window.Pointer, &&x, &&y)
-        (x * 1<px>, y * 1<px>)
+        (x * 1, y * 1)
 
     let setBrightness (brightness:float) (window:Window) =
         Native.SDL_SetWindowBrightness(window.Pointer, brightness)
@@ -297,23 +297,23 @@ module Window =
     let setBordered (bordered:bool) (window:Window) =
         Native.SDL_SetWindowBordered(window.Pointer, if bordered then 1 else 0)
 
-    let setMaximumSize (w:int<px>,h:int<px>) (window:Window) =
-        Native.SDL_SetWindowMaximumSize(window.Pointer, w/1<px>, h/1<px>)
+    let setMaximumSize (w:int,h:int) (window:Window) =
+        Native.SDL_SetWindowMaximumSize(window.Pointer, w/1, h/1)
 
-    let getMaximumSize (window:Window) :int<px> * int<px> =
+    let getMaximumSize (window:Window) :int * int =
         let mutable x = 0
         let mutable y = 0
         Native.SDL_GetWindowMaximumSize (window.Pointer, &&x, &&y)
-        (x * 1<px>, y * 1<px>)
+        (x * 1, y * 1)
 
-    let setMinimumSize (w:int<px>,h:int<px>) (window:Window) =
-        Native.SDL_SetWindowMinimumSize(window.Pointer, w/1<px>, h/1<px>)
+    let setMinimumSize (w:int,h:int) (window:Window) =
+        Native.SDL_SetWindowMinimumSize(window.Pointer, w/1, h/1)
 
-    let getMinimumSize (window:Window) :int<px> * int<px> =
+    let getMinimumSize (window:Window) :int * int =
         let mutable x = 0
         let mutable y = 0
         Native.SDL_GetWindowMinimumSize (window.Pointer, &&x, &&y)
-        (x * 1<px>, y * 1<px>)
+        (x * 1, y * 1)
 
     let getGrab (window:Window) :bool =
         Native.SDL_GetWindowGrab(window.Pointer)

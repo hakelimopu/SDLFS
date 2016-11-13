@@ -49,24 +49,24 @@ module Video =
 
     type DisplayMode =
         {Format: uint32;
-        Width:int<px>;
-        Height:int<px>;
-        RefreshRate:int<hz>;
+        Width:int;
+        Height:int;
+        RefreshRate:int;
         Data:IntPtr}
 
     let internal SDL_DisplayModeToDisplayMode (mode:SDL_DisplayMode) :DisplayMode =
         {Format = mode.format;
-        Width = mode.w * 1<px>;
-        Height= mode.h * 1<px>;
-        RefreshRate = mode.refresh_rate * 1<hz>;
+        Width = mode.w * 1;
+        Height= mode.h * 1;
+        RefreshRate = mode.refresh_rate * 1;
         Data = mode.driverdata}
 
     let internal DisplayModeToSDL_DisplayMode (mode:DisplayMode) :SDL_DisplayMode =
         SDL_DisplayMode(
             format = mode.Format,
-            w = mode.Width / 1<px>,
-            h= mode.Height / 1<px>,
-            refresh_rate = mode.RefreshRate / 1<hz>,
+            w = mode.Width / 1,
+            h= mode.Height / 1,
+            refresh_rate = mode.RefreshRate / 1,
             driverdata = mode.Data)
 
     let getDrivers () :seq<string> =
@@ -105,7 +105,7 @@ module Video =
         rect
         |> SDL.Geometry.sdl_RectToRectangle
 
-    let getDisplayDPI (index:int) : float<dots/inch> * float<dots/inch> * float<dots/inch> =
+    let getDisplayDPI (index:int) : float * float * float =
         let mutable ddpi:float = 0.0
         let mutable hdpi:float = 0.0
         let mutable vdpi:float = 0.0
@@ -113,7 +113,7 @@ module Video =
         Native.SDL_GetDisplayDPI(index, &&ddpi, &&hdpi, &&vdpi)
         |> ignore
 
-        (ddpi * 1.0<dots/inch>, hdpi * 1.0<dots/inch>, vdpi * 1.0<dots/inch>)
+        (ddpi * 1.0, hdpi * 1.0, vdpi * 1.0)
 
 
     let getDisplayModes (index:int) : seq<DisplayMode> =

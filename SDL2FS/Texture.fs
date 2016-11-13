@@ -54,8 +54,8 @@ module Texture =
         extern void SDL_UnlockTexture(IntPtr texture)
 
 
-    let create format (access: Access) (w: int<px>,h: int<px>) (renderer:SDL.Utility.Pointer) =
-        let ptr = Native.SDL_CreateTexture(renderer.Pointer,format,access |> int,w / 1<px>,h / 1<px>)
+    let create format (access: Access) (w: int,h: int) (renderer:SDL.Utility.Pointer) =
+        let ptr = Native.SDL_CreateTexture(renderer.Pointer,format,access |> int,w / 1,h / 1)
         new SDL.Utility.Pointer(ptr, Native.SDL_DestroyTexture)
 
     let fromSurface (renderer:SDL.Utility.Pointer) surface =

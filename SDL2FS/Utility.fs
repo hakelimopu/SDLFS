@@ -7,16 +7,6 @@ open System.Runtime.InteropServices
 open System
 open Microsoft.FSharp.NativeInterop
 
-[<Measure>] type px
-[<Measure>] type bit
-[<Measure>] type bytes
-[<Measure>] type ms
-[<Measure>] type second
-[<Measure>] type hz = 1/second
-[<Measure>] type dots
-[<Measure>] type inch
-
-
 [<AutoOpen>]
 module Operators = 
     let (|>*) f g =

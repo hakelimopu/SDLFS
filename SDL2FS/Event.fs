@@ -962,12 +962,12 @@ module Event =
         | true, _                                  -> event.Type |> Other |> Some
         | _, _                                     -> None
     
-    let wait (timeout:int<ms> option) =
+    let wait (timeout:int option) =
         let mutable event = new SDL_Event()
         let result = 
             match timeout with
             | None -> Native.SDL_WaitEvent(&&event) = 1 
-            | Some x -> Native.SDL_WaitEventTimeout(&&event,x/1<ms>) = 1
+            | Some x -> Native.SDL_WaitEventTimeout(&&event,x/1) = 1
         convertEvent (result,event)
     
     let poll () =

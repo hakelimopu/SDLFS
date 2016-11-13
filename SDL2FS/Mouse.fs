@@ -69,28 +69,28 @@ module Mouse =
         let mutable x:int = 0
         let mutable y:int = 0
         let buttons = Native.SDL_GetMouseState(&&x,&&y)
-        {Position = {X = x * 1<px>;Y = y * 1<px>};Buttons = buttons |> toButtonSet}
+        {Position = {X = x * 1;Y = y * 1};Buttons = buttons |> toButtonSet}
 
     let getGlobalMouseState () :MouseState =
         let mutable x:int = 0
         let mutable y:int = 0
         let buttons = Native.SDL_GetGlobalMouseState(&&x,&&y)
-        {Position = {X = x * 1<px>;Y = y * 1<px>};Buttons = buttons |> toButtonSet}
+        {Position = {X = x * 1;Y = y * 1};Buttons = buttons |> toButtonSet}
 
     let getRelativeMouseState () :MouseState =
         let mutable x:int = 0
         let mutable y:int = 0
         let buttons = Native.SDL_GetRelativeMouseState(&&x,&&y)
-        {Position = {X = x * 1<px>;Y = y * 1<px>};Buttons = buttons |> toButtonSet}
+        {Position = {X = x * 1;Y = y * 1};Buttons = buttons |> toButtonSet}
 
     let warpMouseInWindow (window:SDL.Utility.Pointer) (xy:SDL.Geometry.Point) :unit =
-        Native.SDL_WarpMouseInWindow(window.Pointer,xy.X / 1<px>,xy.Y / 1<px>)
+        Native.SDL_WarpMouseInWindow(window.Pointer,xy.X / 1,xy.Y / 1)
 
     let warpMouseInCurrentWindow (xy:SDL.Geometry.Point) :unit =
-        Native.SDL_WarpMouseInWindow(IntPtr.Zero,xy.X / 1<px>,xy.Y / 1<px>)
+        Native.SDL_WarpMouseInWindow(IntPtr.Zero,xy.X / 1,xy.Y / 1)
 
     let warpMouseGlobal (xy:SDL.Geometry.Point) :bool =
-        0 = Native.SDL_WarpMouseGlobal(xy.X / 1<px>,xy.Y / 1<px>)
+        0 = Native.SDL_WarpMouseGlobal(xy.X / 1,xy.Y / 1)
 
     let setRelativeMouseMode (flag:bool) :bool = 
         0 = Native.SDL_SetRelativeMouseMode(if flag then 1 else 0)
