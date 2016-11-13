@@ -107,12 +107,12 @@ type JetLagModel =
     Direction:JetLagDirection;
     LeftWall:int<cell>;
     RightWall:int<cell>;
-    Blocks:int<cell> seq;
-    Tail:int<cell> seq}
+    Blocks:int<cell> list;
+    Tail:int<cell> list}
 
 let renderBlocks (context:RenderingContext) (model:JetLagModel) : unit =
     (0<cell>, model.Blocks)
-    ||> Seq.fold 
+    ||> List.fold 
         (fun row column -> 
             context.Surface
             |> Surface.fillRect ({Rectangle.X= column * context.ScaleX; Y= row * context.ScaleY; Width=context.ScaleX * 1<cell>; Height=context.ScaleY * 1<cell>} |> Some) {Color.Red = 255uy; Green=255uy; Blue=255uy; Alpha=255uy}
@@ -121,9 +121,9 @@ let renderBlocks (context:RenderingContext) (model:JetLagModel) : unit =
     |> ignore
 
 let renderTail (context:RenderingContext) (model:JetLagModel) : unit =
-    let headPosition = ((model.Tail |> Seq.length) - 1) * 1<cell>
+    let headPosition = ((model.Tail |> List.length) - 1) * 1<cell>
     (0<cell>, model.Tail)
-    ||> Seq.fold 
+    ||> List.fold 
         (fun row column -> 
             let color = 
                 if row=headPosition then
@@ -138,7 +138,7 @@ let renderTail (context:RenderingContext) (model:JetLagModel) : unit =
 
 let renderWalls (context:RenderingContext) (model:JetLagModel) : unit =
     let blue = {Color.Red = 0uy; Green=0uy; Blue=255uy; Alpha=255uy}
-    let rows = (model.Blocks |> Seq.length) * 1<cell>
+    let rows = (model.Blocks |> List.length) * 1<cell>
     context.Surface
     |> Surface.fillRect ({Rectangle.X= model.LeftWall * context.ScaleX; Y= 0<cell> * context.ScaleY; Width=context.ScaleX * 1<cell>; Height=context.ScaleY * rows} |> Some) blue
     |> ignore
@@ -153,8 +153,8 @@ let JetLagTailLength =  6<cell>
 let resetJetLagModel (model:JetLagModel) : JetLagModel =
     {model with
         FrameCounter=0<ms>;
-        Blocks=[1..(JetLagRows/1<cell>)] |> Seq.map(fun e-> 0<cell>);
-        Tail=[1..(JetLagTailLength/1<cell>)] |> Seq.map(fun e-> JetLagColumns / 2 );
+        Blocks=[1..(JetLagRows/1<cell>)] |> List.map(fun e-> 0<cell>);
+        Tail=[1..(JetLagTailLength/1<cell>)] |> List.map(fun e-> JetLagColumns / 2 );
         Direction=Right;
         Score=0<point>}
 
@@ -162,6 +162,7 @@ let onEventGameOver (event: Event.Event) (state:State<JetLagModel>) : State<JetL
     match event with
     | Event.KeyDown k when k.Keysym.Scancode = Keyboard.ScanCode.Space ->
         Some {state with Model={(state.Model |> resetJetLagModel) with State = Play}}
+
     | _ -> 
         Some state
 
@@ -169,14 +170,16 @@ let onEventPlay (event: Event.Event) (state:State<JetLagModel>) : State<JetLagMo
     match event with
     | Event.KeyDown k when k.Keysym.Scancode = Keyboard.ScanCode.Left ->
         Some {state with Model={state.Model with Direction=Left}}
+
     | Event.KeyDown k when k.Keysym.Scancode = Keyboard.ScanCode.Right ->
         Some {state with Model={state.Model with Direction=Right}}
+
     | _ -> 
         Some state
 
 let eventMap =
     [(GameOver,onEventGameOver);(Play,onEventPlay);]
-    |> Map.ofSeq
+    |> Map.ofList
 
 let onEvent (event: Event.Event) (state:State<JetLagModel>) : State<JetLagModel> option =
     if event.isQuitEvent then
@@ -203,18 +206,18 @@ let rec scrollLines (random:Random) (model:JetLagModel) : JetLagModel =
         //scroll blocks
         let blocks = 
             [random.Next((model.LeftWall/1<cell>)+1, (model.RightWall/1<cell>)) * 1<cell>]
-            |> Seq.append
+            |> List.append
                 (model.Blocks
-                |> Seq.skip 1)
+                |> List.skip 1)
         //scroll tail
-        let head = (model.Tail |> Seq.last) + (if model.Direction = Left then (-1<cell>) else 1<cell>)
+        let head = (model.Tail |> List.last) + (if model.Direction = Left then (-1<cell>) else 1<cell>)
         let tail = 
             [head]
-            |> Seq.append
+            |> List.append
                 (model.Tail
-                |> Seq.skip 1)
+                |> List.skip 1)
         //check for game over
-        let state = if (blocks |> Seq.item ((tail |> Seq.length) - 1))=head || head=model.LeftWall || head=model.RightWall  then GameOver else Play
+        let state = if (blocks |> List.item ((tail |> List.length) - 1))=head || head=model.LeftWall || head=model.RightWall  then GameOver else Play
         {model with FrameCounter = frameCounter; Tail = tail; Blocks = blocks; State = state}
         |> scrollLines random
     else
