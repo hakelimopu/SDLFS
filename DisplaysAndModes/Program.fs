@@ -4,23 +4,20 @@
 let main argv = 
     use system = new Init.System(Init.Init.Video)
 
-    let displayCount = Video.getDisplayCount()
+    let displays = Video.getDisplays()
 
-    printf "Number of displays: %d\r\n\r\n" displayCount
+    printf "Number of displays: %d\r\n\r\n" displays.Length
 
-    [0..(displayCount-1)]
-    |> List.iter 
-        (fun index->
-            let displayName = Video.getDisplayName index
-            let displayBounds = Video.getDisplayBounds index
-
+    displays
+    |> List.iter
+        (fun display->
             printf 
                 "For display index %d:\r\n\r\n\tName:%s\r\n\tBounds: (%d,%d,%d,%d)\r\n\r\n"
-                index
-                displayName
-                displayBounds.X
-                displayBounds.Y
-                displayBounds.Width
-                displayBounds.Height)
+                display.Index
+                display.Name
+                display.Bounds.X
+                display.Bounds.Y
+                display.Bounds.Width
+                display.Bounds.Height)
 
     0

@@ -89,14 +89,14 @@ module Video =
         Native.SDL_GetCurrentVideoDriver()
         |> SDL.Utility.intPtrToStringAscii
 
-    let getDisplayCount () : int =
+    let internal getDisplayCount () : int =
         Native.SDL_GetNumVideoDisplays()
 
-    let getDisplayName (index:int) :string = 
+    let internal getDisplayName (index:int) :string = 
         Native.SDL_GetDisplayName(index)
         |> SDL.Utility.intPtrToStringAscii
 
-    let getDisplayBounds (index:int) : Geometry.Rectangle =
+    let internal getDisplayBounds (index:int) : Geometry.Rectangle =
         let mutable rect:SDL.Geometry.SDL_Rect = new SDL.Geometry.SDL_Rect()
 
         Native.SDL_GetDisplayBounds(index,&&rect)
@@ -108,7 +108,7 @@ module Video =
     type DisplayDPI = 
         {Diagonal: float; Horizontal: float; Vertical:float}
 
-    let getDisplayDPI (index:int) : DisplayDPI option =
+    let internal getDisplayDPI (index:int) : DisplayDPI option =
         let mutable ddpi:float = 0.0
         let mutable hdpi:float = 0.0
         let mutable vdpi:float = 0.0
@@ -127,14 +127,14 @@ module Video =
         Bounds: Geometry.Rectangle; 
         DPI: DisplayDPI option}
 
-//    let getDisplays() : DisplayProperties list =
-//        let displayCount = getDisplayCount()
-//
-//        [0..(displayCount-1)]
-//        |> List.map 
-//            (fun displayIndex->
-//                let displayName = 
-//                )
+    let getDisplays() : DisplayProperties list =
+        [0..(getDisplayCount()-1)]
+        |> List.map 
+            (fun displayIndex->
+                {Index=displayIndex;
+                Name=getDisplayName displayIndex;
+                Bounds=getDisplayBounds displayIndex;
+                DPI=getDisplayDPI displayIndex})
 
     let getDisplayModes (index:int) : List<DisplayMode> =
         Native.SDL_GetNumDisplayModes(index)
