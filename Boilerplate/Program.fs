@@ -5,14 +5,18 @@
 open SDL
 open Pixel
 
-let rec eventPump 
-        (eventSource:   unit   -> 'TEvent option) 
-        (eventHandler: 'TEvent -> 'TState->'TState option) 
-        (drawHandler:  'TState -> unit) 
-        (state:        'TState) :unit =
+type EventSource<'TEvent> = unit -> 'TEvent option
+type EventHandler<'TEvent,'TState> = 'TEvent -> 'TState -> 'TState option
+type PresentationHandler<'TState> = 'TState -> unit
 
-    //draw the state
-    drawHandler state
+let rec eventOnlyEventPump 
+        (eventSource: EventSource<'TEvent>) 
+        (eventHandler: EventHandler<'TEvent,'TState>) 
+        (presentationHandler: PresentationHandler<'TState>) 
+        (state: 'TState) :unit =
+
+    //present the state
+    presentationHandler state
 
     //check for an event
     match eventSource() with
@@ -23,12 +27,12 @@ let rec eventPump
         //send event to event handler, and then pump again if a state is returned
         (event, state) 
         ||> eventHandler
-        |> Option.iter (eventPump eventSource eventHandler drawHandler)
+        |> Option.iter (eventOnlyEventPump eventSource eventHandler presentationHandler)
 
     //no event occurred
     | None ->
         state
-        |>eventPump eventSource eventHandler drawHandler
+        |>eventOnlyEventPump eventSource eventHandler presentationHandler
 
 let onEvent (event:Event.Event) (state) =
     if event.isQuitEvent then
@@ -75,7 +79,7 @@ let runGame () =
 
     let state = {Color.Red=255uy;Green=0uy;Blue=255uy;Alpha=255uy}
 
-    eventPump Event.poll onEvent (onDraw surface texture renderer) state
+    eventOnlyEventPump Event.poll onEvent (onDraw surface texture renderer) state
 
 [<EntryPoint>]
 let main argv = 
