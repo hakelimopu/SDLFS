@@ -69,14 +69,14 @@ module Video =
             refresh_rate = mode.RefreshRate / 1,
             driverdata = mode.Data)
 
-    let getDrivers () :seq<string> =
+    let getDrivers () :string list =
         Native.SDL_GetNumVideoDrivers()
-        |> Seq.unfold (fun index ->
+        |> List.unfold (fun index ->
             if index=0 then
                 None
             else
                 (Native.SDL_GetVideoDriver(index-1) |> SDL.Utility.intPtrToStringAscii, index-1) |> Some)
-        |> Seq.rev
+        |> List.rev
 
     let init (driverName:string) =
         driverName
@@ -89,14 +89,14 @@ module Video =
         Native.SDL_GetCurrentVideoDriver()
         |> SDL.Utility.intPtrToStringAscii
 
-    let getDisplayCount () =
+    let getDisplayCount () : int =
         Native.SDL_GetNumVideoDisplays()
 
-    let getDisplayName (index:int) = 
+    let getDisplayName (index:int) :string = 
         Native.SDL_GetDisplayName(index)
         |> SDL.Utility.intPtrToStringAscii
 
-    let getDisplayBounds (index:int) =
+    let getDisplayBounds (index:int) : Geometry.Rectangle =
         let mutable rect:SDL.Geometry.SDL_Rect = new SDL.Geometry.SDL_Rect()
 
         Native.SDL_GetDisplayBounds(index,&&rect)
@@ -105,20 +105,40 @@ module Video =
         rect
         |> SDL.Geometry.sdl_RectToRectangle
 
-    let getDisplayDPI (index:int) : float * float * float =
+    type DisplayDPI = 
+        {Diagonal: float; Horizontal: float; Vertical:float}
+
+    let getDisplayDPI (index:int) : DisplayDPI option =
         let mutable ddpi:float = 0.0
         let mutable hdpi:float = 0.0
         let mutable vdpi:float = 0.0
 
-        Native.SDL_GetDisplayDPI(index, &&ddpi, &&hdpi, &&vdpi)
-        |> ignore
+        let result = 
+            Native.SDL_GetDisplayDPI(index, &&ddpi, &&hdpi, &&vdpi)
 
-        (ddpi * 1.0, hdpi * 1.0, vdpi * 1.0)
+        if result = 0 then
+            {Diagonal = ddpi; Horizontal = hdpi; Vertical = vdpi} |> Some
+        else
+            None
 
+    type DisplayProperties = 
+        {Index:int; 
+        Name:string; 
+        Bounds: Geometry.Rectangle; 
+        DPI: DisplayDPI option}
 
-    let getDisplayModes (index:int) : seq<DisplayMode> =
+//    let getDisplays() : DisplayProperties list =
+//        let displayCount = getDisplayCount()
+//
+//        [0..(displayCount-1)]
+//        |> List.map 
+//            (fun displayIndex->
+//                let displayName = 
+//                )
+
+    let getDisplayModes (index:int) : List<DisplayMode> =
         Native.SDL_GetNumDisplayModes(index)
-        |> Seq.unfold (fun modeIndex ->
+        |> List.unfold (fun modeIndex ->
             if modeIndex=0 then
                 None
             else
@@ -129,7 +149,7 @@ module Video =
                 |> ignore
 
                 (SDL_DisplayModeToDisplayMode mode, index-1) |> Some)
-        |> Seq.rev
+        |> List.rev
     
     let getCurrentDisplayMode (index:int) :DisplayMode =
         let mutable mode:SDL_DisplayMode = new SDL_DisplayMode()
