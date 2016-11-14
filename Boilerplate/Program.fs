@@ -30,9 +30,6 @@ let rec eventPump
         state
         |>eventPump eventSource eventHandler drawHandler
 
-let ScreenWidth = 640
-let ScreenHeight = 480
-
 let onEvent (event:Event.Event) (state) =
     if event.isQuitEvent then
         None
@@ -58,12 +55,15 @@ let onDraw (surface:Surface.Surface) (texture:Texture.Texture) (renderer:Render.
 
 type State = Color
 
+let ScreenWidth = 640
+let ScreenHeight = 480
+
 let runGame () =
     use system = new Init.System(Init.Init.Video ||| Init.Init.Events)
 
-    use window = Window.create "Boilerplate" Window.Position.Centered (ScreenWidth,ScreenHeight) Window.Flags.None
+    use window = Window.create ("Boilerplate", Window.Position.Centered, ScreenWidth,ScreenHeight, Window.Flags.None)
 
-    use renderer = Render.create window -1 Render.Flags.Accelerated
+    use renderer = Render.create window None Render.Flags.Accelerated
 
     use surface = Surface.createRGB (ScreenWidth,ScreenHeight,32) (0x00FF0000u, 0x0000FF00u, 0x000000FFu, 0x00000000u)
 

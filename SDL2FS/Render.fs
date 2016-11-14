@@ -135,11 +135,11 @@ module Render =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_GL_UnbindTexture(IntPtr texture)
 
-    let create (window:SDL.Utility.Pointer) (index:int) (flags:Flags) :Renderer =
-        let ptr = Native.SDL_CreateRenderer(window.Pointer, index, flags |> uint32)
+    let create (window:SDL.Utility.Pointer) (index:int option) (flags:Flags) :Renderer =
+        let ptr = Native.SDL_CreateRenderer(window.Pointer, (if index.IsSome then index.Value else -1), flags |> uint32)
         new SDL.Utility.Pointer(ptr,Native.SDL_DestroyRenderer)
 
-    let createSoftware (surface:Surface) (index:int) (flags:Flags) :Renderer =
+    let createSoftware (surface:Surface) :Renderer =
         let ptr = Native.SDL_CreateSoftwareRenderer(surface.Pointer)
         new SDL.Utility.Pointer(ptr,Native.SDL_DestroyRenderer)
 

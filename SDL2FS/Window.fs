@@ -230,15 +230,16 @@ module Window =
         | Centered
         | Absolute of int * int
 
-    let create (title:string) (position:Position) (w:int,h:int) (flags:Flags) :Window =
+    //there is no value whatsoever with this function being in curried form
+    let create (title:string, position:Position, width:int, height:int, flags:Flags) :Window =
         let windowX, windowY = 
             match position with
             | Position.Undefined -> (0x1FFF0000,0x1FFF0000)
             | Position.Centered -> (0x2FFF0000,0x2FFF0000)
-            | Position.Absolute (x,y) -> (x/1, y/1)
+            | Position.Absolute (x,y) -> (x, y)
         let ptr = 
             title
-            |> SDL.Utility.withUtf8String (fun ptr -> Native.SDL_CreateWindow(ptr, windowX, windowY, w /1, h /1, flags |> uint32))
+            |> SDL.Utility.withUtf8String (fun ptr -> Native.SDL_CreateWindow(ptr, windowX, windowY, width, height, flags |> uint32))
         new SDL.Utility.Pointer(ptr, Native.SDL_DestroyWindow)
 
     let createFrom (data:IntPtr) :Window =
