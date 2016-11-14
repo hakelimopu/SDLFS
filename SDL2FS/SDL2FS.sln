@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SDL2FS", "SDL2FS.fsproj", "{AACD42B3-8D59-4395-BA7B-4CC02EE319BB}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SDL2FS.TestClient", "..\SDL2FS.TestClient\SDL2FS.TestClient.fsproj", "{3308B90A-8D3E-481A-9B78-78361D24E97A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Boilerplate", "..\Boilerplate\Boilerplate.fsproj", "{04D6357F-EEFF-4FC6-A513-AB709B80A13C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Release|x64.ActiveCfg = Release|x64
 		{3308B90A-8D3E-481A-9B78-78361D24E97A}.Release|x64.Build.0 = Release|x64
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Debug|x64.ActiveCfg = Debug|x64
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Debug|x64.Build.0 = Debug|x64
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Release|x64.ActiveCfg = Release|Any CPU
+		{04D6357F-EEFF-4FC6-A513-AB709B80A13C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
