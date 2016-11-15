@@ -47,6 +47,34 @@ module Video =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_GetDesktopDisplayMode(int displayIndex, IntPtr mode);
 
+    /////////////////////////////////////////////////////////////////////////////////
+    //Drivers
+    /////////////////////////////////////////////////////////////////////////////////
+
+    let getDrivers () :string list =
+        Native.SDL_GetNumVideoDrivers()
+        |> List.unfold (fun index ->
+            if index=0 then
+                None
+            else
+                (Native.SDL_GetVideoDriver(index-1) |> SDL.Utility.intPtrToStringAscii, index-1) |> Some)
+        |> List.rev
+
+    let getCurrentDriver () =
+        Native.SDL_GetCurrentVideoDriver()
+        |> SDL.Utility.intPtrToStringAscii
+
+    let init (driverName:string) =
+        driverName
+        |> SDL.Utility.withAsciiString(fun ptr-> Native.SDL_VideoInit(ptr) = 0)
+
+    let quit () =
+        Native.SDL_VideoQuit()
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //Modes
+    /////////////////////////////////////////////////////////////////////////////////
+
     type DisplayMode =
         {Format: uint32;
         Width:int;
@@ -58,39 +86,62 @@ module Video =
         {Format = mode.format;
         Width = mode.w * 1;
         Height= mode.h * 1;
-        RefreshRate = mode.refresh_rate * 1;
+        RefreshRate = mode.refresh_rate;
         Data = mode.driverdata}
 
     let internal DisplayModeToSDL_DisplayMode (mode:DisplayMode) :SDL_DisplayMode =
         SDL_DisplayMode(
             format = mode.Format,
-            w = mode.Width / 1,
-            h= mode.Height / 1,
-            refresh_rate = mode.RefreshRate / 1,
+            w = mode.Width,
+            h= mode.Height,
+            refresh_rate = mode.RefreshRate,
             driverdata = mode.Data)
 
-    let getDrivers () :string list =
-        Native.SDL_GetNumVideoDrivers()
-        |> List.unfold (fun index ->
-            if index=0 then
-                None
-            else
-                (Native.SDL_GetVideoDriver(index-1) |> SDL.Utility.intPtrToStringAscii, index-1) |> Some)
-        |> List.rev
+    let internal getDisplayModes (index:int) : List<DisplayMode> =
+        [0..(Native.SDL_GetNumDisplayModes(index) - 1)]
+        |> List.map 
+            (fun modeIndex->
+                let mutable mode:SDL_DisplayMode = new SDL_DisplayMode()
+                let ptr = NativePtr.toNativeInt &&mode
+                
+                Native.SDL_GetDisplayMode(index,modeIndex,ptr)
+                |> ignore
 
-    let init (driverName:string) =
-        driverName
-        |> SDL.Utility.withAsciiString(fun ptr-> Native.SDL_VideoInit(ptr) = 0)
+                SDL_DisplayModeToDisplayMode mode)
+    
+    let internal getCurrentDisplayMode (index:int) :DisplayMode =
+        let mutable mode:SDL_DisplayMode = new SDL_DisplayMode()
+        let ptr = NativePtr.toNativeInt &&mode
+                
+        Native.SDL_GetCurrentDisplayMode(index, ptr)
+        |> ignore
 
-    let quit () =
-        Native.SDL_VideoQuit()
+        SDL_DisplayModeToDisplayMode mode
+    
+    let internal getDesktopDisplayMode (index:int) :DisplayMode =
+        let mutable mode:SDL_DisplayMode = new SDL_DisplayMode()
+        let ptr = NativePtr.toNativeInt &&mode
+                
+        Native.SDL_GetDesktopDisplayMode(index, ptr)
+        |> ignore
 
-    let getCurrentDriver () =
-        Native.SDL_GetCurrentVideoDriver()
-        |> SDL.Utility.intPtrToStringAscii
+        SDL_DisplayModeToDisplayMode mode
 
-    let internal getDisplayCount () : int =
-        Native.SDL_GetNumVideoDisplays()
+    let getClosestDisplayMode (index:int) (mode:DisplayMode) :DisplayMode =
+        let mutable displayMode' = DisplayModeToSDL_DisplayMode mode
+        let ptr = NativePtr.toNativeInt  &&displayMode'
+
+        let mutable resultMode:SDL_DisplayMode = new SDL_DisplayMode()
+        let resultPtr = NativePtr.toNativeInt &&resultMode
+                
+        Native.SDL_GetClosestDisplayMode(index, ptr, resultPtr)
+        |> ignore
+
+        SDL_DisplayModeToDisplayMode resultMode
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //Displays
+    /////////////////////////////////////////////////////////////////////////////////
 
     let internal getDisplayName (index:int) :string = 
         Native.SDL_GetDisplayName(index)
@@ -125,58 +176,19 @@ module Video =
         {Index:int; 
         Name:string; 
         Bounds: Geometry.Rectangle; 
-        DPI: DisplayDPI option}
+        DPI: DisplayDPI option;
+        CurrentMode: DisplayMode;
+        DesktopMode: DisplayMode;
+        AvailableModes: DisplayMode list}
 
     let getDisplays() : DisplayProperties list =
-        [0..(getDisplayCount()-1)]
+        [0..(Native.SDL_GetNumVideoDisplays()-1)]
         |> List.map 
             (fun displayIndex->
                 {Index=displayIndex;
                 Name=getDisplayName displayIndex;
                 Bounds=getDisplayBounds displayIndex;
-                DPI=getDisplayDPI displayIndex})
-
-    let getDisplayModes (index:int) : List<DisplayMode> =
-        Native.SDL_GetNumDisplayModes(index)
-        |> List.unfold (fun modeIndex ->
-            if modeIndex=0 then
-                None
-            else
-                let mutable mode:SDL_DisplayMode = new SDL_DisplayMode()
-                let ptr = NativePtr.toNativeInt &&mode
-                
-                Native.SDL_GetDisplayMode(index,modeIndex,ptr)
-                |> ignore
-
-                (SDL_DisplayModeToDisplayMode mode, index-1) |> Some)
-        |> List.rev
-    
-    let getCurrentDisplayMode (index:int) :DisplayMode =
-        let mutable mode:SDL_DisplayMode = new SDL_DisplayMode()
-        let ptr = NativePtr.toNativeInt &&mode
-                
-        Native.SDL_GetCurrentDisplayMode(index, ptr)
-        |> ignore
-
-        SDL_DisplayModeToDisplayMode mode
-    
-    let getDesktopDisplayMode (index:int) :DisplayMode =
-        let mutable mode:SDL_DisplayMode = new SDL_DisplayMode()
-        let ptr = NativePtr.toNativeInt &&mode
-                
-        Native.SDL_GetDesktopDisplayMode(index, ptr)
-        |> ignore
-
-        SDL_DisplayModeToDisplayMode mode
-
-    let getClosestDisplayMode (index:int) (mode:DisplayMode) :DisplayMode =
-        let mutable displayMode' = DisplayModeToSDL_DisplayMode mode
-        let ptr = NativePtr.toNativeInt  &&displayMode'
-
-        let mutable resultMode:SDL_DisplayMode = new SDL_DisplayMode()
-        let resultPtr = NativePtr.toNativeInt &&resultMode
-                
-        Native.SDL_GetClosestDisplayMode(index, ptr, resultPtr)
-        |> ignore
-
-        SDL_DisplayModeToDisplayMode resultMode
+                DPI=getDisplayDPI displayIndex;
+                CurrentMode=getCurrentDisplayMode displayIndex;
+                DesktopMode = getDesktopDisplayMode displayIndex;
+                AvailableModes = getDisplayModes displayIndex})
