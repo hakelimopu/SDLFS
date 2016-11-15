@@ -52,24 +52,27 @@ module Video =
     /////////////////////////////////////////////////////////////////////////////////
 
     let getDrivers () :string list =
-        Native.SDL_GetNumVideoDrivers()
-        |> List.unfold (fun index ->
-            if index=0 then
-                None
-            else
-                (Native.SDL_GetVideoDriver(index-1) |> SDL.Utility.intPtrToStringAscii, index-1) |> Some)
-        |> List.rev
+        [0..(Native.SDL_GetNumVideoDrivers()-1)]
+        |> List.map (Native.SDL_GetVideoDriver >> SDL.Utility.intPtrToStringAscii)
 
-    let getCurrentDriver () =
-        Native.SDL_GetCurrentVideoDriver()
-        |> SDL.Utility.intPtrToStringAscii
+    let getCurrentDriver: unit -> string =
+        Native.SDL_GetCurrentVideoDriver
+        >> SDL.Utility.intPtrToStringAscii
 
-    let init (driverName:string) =
+    let internal initVideo (driverName:string) :bool =
         driverName
         |> SDL.Utility.withAsciiString(fun ptr-> Native.SDL_VideoInit(ptr) = 0)
 
-    let quit () =
+    let internal quitVideo () :unit =
         Native.SDL_VideoQuit()
+
+    type Video (driverName:string) =
+        do
+            initVideo driverName
+            |> ignore
+        interface IDisposable with
+            member this.Dispose() = 
+                quitVideo()
 
     /////////////////////////////////////////////////////////////////////////////////
     //Modes

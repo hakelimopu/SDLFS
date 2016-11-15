@@ -64,7 +64,7 @@ module Pixel =
         ((1 <<< 28) ||| ((typ) <<< 24) ||| ((order) <<< 20) ||| ((layout) <<< 16) ||| ((bits) <<< 8) ||| ((bytes) <<< 0)) |> uint32
 
 
-    let UnknownFormat     = 0
+    let UnknownFormat     = 0u
     let Index1LSBFormat   = DefinePixelFormat(PixelType.Index1   |> int, BitmapOrder._4321  |> int, 0                     |> int,  1, 0)
     let Index1MSBFormat   = DefinePixelFormat(PixelType.Index1   |> int, BitmapOrder._1234  |> int, 0                     |> int,  1, 0)
     let Index4LSBFormat   = DefinePixelFormat(PixelType.Index4   |> int, BitmapOrder._4321  |> int, 0                     |> int,  4, 0)
@@ -95,6 +95,51 @@ module Pixel =
     let ABGR8888Format    = DefinePixelFormat(PixelType.Packed32 |> int, PackedOrder.ABGR   |> int, PackedLayout._8888    |> int, 32, 4)
     let BGRA8888Format    = DefinePixelFormat(PixelType.Packed32 |> int, PackedOrder.BGRA   |> int, PackedLayout._8888    |> int, 32, 4)
     let ARGB2101010Format = DefinePixelFormat(PixelType.Packed32 |> int, PackedOrder.ARGB   |> int, PackedLayout._2101010 |> int, 32, 4)
+
+    let private formatNameTable = 
+        [
+        (UnknownFormat     ,"Unknown"    );
+        (Index1LSBFormat   ,"Index1LSB"  );
+        (Index1MSBFormat   ,"Index1MSB"  );
+        (Index4LSBFormat   ,"Index4LSB"  );
+        (Index4MSBFormat   ,"Index4MSB"  );
+        (Index8Format      ,"Index8"     );
+        (RGB332Format      ,"RGB332"     );
+        (RGB444Format      ,"RGB444"     );
+        (RGB555Format      ,"RGB555"     );
+        (BGR555Format      ,"BGR555"     );
+        (ARGB4444Format    ,"ARGB4444"   );
+        (RGBA4444Format    ,"RGBA4444"   );
+        (ABGR4444Format    ,"ABGR4444"   );
+        (BGRA4444Format    ,"BGRA4444"   );
+        (ARGB1555Format    ,"ARGB1555"   );
+        (RGBA5551Format    ,"RGBA5551"   );
+        (ABGR1555Format    ,"ABGR1555"   );
+        (BGRA5551Format    ,"BGRA5551"   );
+        (RGB565Format      ,"RGB565"     );
+        (BGR565Format      ,"BGR565"     );
+        (RGB24Format       ,"RGB24"      );
+        (BGR24Format       ,"BGR24"      );
+        (RGB888Format      ,"RGB888"     );
+        (RGBX8888Format    ,"RGBX8888"   );
+        (BGR888Format      ,"BGR888"     );
+        (BGRX8888Format    ,"BGRX8888"   );
+        (ARGB8888Format    ,"ARGB8888"   );
+        (RGBA8888Format    ,"RGBA8888"   );
+        (ABGR8888Format    ,"ABGR8888"   );
+        (BGRA8888Format    ,"BGRA8888"   );
+        (ARGB2101010Format ,"ARGB2101010")]
+        |> Map.ofList
+
+    let getFormatName (format:uint32) : string =
+        let value = 
+            formatNameTable
+            |> Map.tryFind format
+        if value.IsSome then
+            value.Value
+        else
+            String.Empty
+
 
     [<StructLayout(LayoutKind.Sequential)>]
     type internal SDL_Color =

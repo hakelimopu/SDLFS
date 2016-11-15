@@ -5,7 +5,7 @@ let printDisplayMode (prefix:string) (mode:Video.DisplayMode): unit =
     printf "%s Width: %d\r\n" prefix mode.Width
     printf "%s Height: %d\r\n" prefix mode.Height
     printf "%s Refresh Rate: %d\r\n" prefix mode.RefreshRate
-    printf "%s Format: %d\r\n" prefix mode.Format
+    printf "%s Format: %s\r\n" prefix (mode.Format |> Pixel.getFormatName)
     printf "%s Data: %d\r\n" prefix mode.Data
     
 
@@ -42,10 +42,13 @@ let main argv =
     use system = new Init.System(Init.Init.Video)
 
     let displays = Video.getDisplays()
-
     printf "Number of displays: %d\r\n" displays.Length
-
     displays
     |> List.iter printDisplayProperties
+
+    let drivers = Video.getDrivers()
+    printf "\r\nNumber of drivers: %d\r\n" drivers.Length
+    drivers
+    |> List.iter (printf "\t%s\r\n")
 
     0
