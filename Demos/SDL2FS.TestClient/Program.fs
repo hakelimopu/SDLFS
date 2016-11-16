@@ -74,7 +74,7 @@ type RenderingContext =
 
 let clearScreen (context:RenderingContext) (model:'TModel) : unit =
     context.Renderer
-    |> Render.setDrawColor (255uy, 0uy, 255uy, 255uy)
+    |> Render.setDrawColor {Pixel.Color.Red = 255uy; Green= 0uy; Blue= 255uy; Alpha= 255uy}
     |> ignore
 
     context.Renderer

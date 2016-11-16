@@ -3,7 +3,7 @@
 [<EntryPoint>]
 let main argv = 
 
-    let version =  Version.getVersion()
+    let version =  Version.get()
 
     printf "SDL Version: %d.%d.%d\r\n" version.Major version.Minor version.Patch
 

@@ -101,6 +101,10 @@ module Window =
         extern IntPtr SDL_CreateWindowFrom(IntPtr data)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern void SDL_DestroyWindow(IntPtr window)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern int SDL_CreateWindowAndRenderer(int width, int height, uint32 window_flags, IntPtr* window, IntPtr* renderer)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern void SDL_DestroyRenderer(IntPtr renderer)//DONE
 
         //display modes
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
@@ -380,3 +384,19 @@ module Window =
 
     let setWindowIcon (icon:SDL.Utility.Pointer) (window:Window) =
         Native.SDL_SetWindowIcon(window.Pointer,icon.Pointer)
+
+    let createWindowAndRenderer (width:int, height:int, flags:Flags) : (Window * Render.Renderer) option =
+        let mutable window:IntPtr = IntPtr.Zero
+        let mutable renderer:IntPtr = IntPtr.Zero
+        let result = 
+            Native.SDL_CreateWindowAndRenderer(width, height, flags |> uint32, &&window, &&renderer)
+        if result=0 then
+            Some (new SDL.Utility.Pointer(window,Native.SDL_DestroyWindow), new SDL.Utility.Pointer(renderer,Native.SDL_DestroyRenderer))
+        else
+            if window<>IntPtr.Zero then
+                Native.SDL_DestroyWindow(window)
+
+            if renderer<> IntPtr.Zero then
+                Native.SDL_DestroyRenderer(renderer)
+
+            None    
