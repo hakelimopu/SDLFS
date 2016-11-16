@@ -5,15 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>04d6357f-eeff-4fc6-a513-ab709b80a13c</ProjectGuid>
+    <ProjectGuid>825f00bf-3e93-4a93-884c-d37311583e53</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Boilerplate</RootNamespace>
-    <AssemblyName>Boilerplate</AssemblyName>
+    <RootNamespace>DisplaysAndModes</RootNamespace>
+    <AssemblyName>DisplaysAndModes</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <Name>Boilerplate</Name>
-    <TargetFrameworkProfile />
+    <Name>DriversDisplaysAndModes</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Boilerplate.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\DisplaysAndModes.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -35,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Boilerplate.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\DisplaysAndModes.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -53,7 +52,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SDL2FS\SDL2FS.fsproj">
+    <ProjectReference Include="..\..\SDL2FS\SDL2FS.fsproj">
       <Name>SDL2FS</Name>
       <Project>{aacd42b3-8d59-4395-ba7b-4cc02ee319bb}</Project>
       <Private>True</Private>
@@ -70,7 +69,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Boilerplate.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\DisplaysAndModes.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
@@ -81,7 +80,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Boilerplate.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\DisplaysAndModes.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
