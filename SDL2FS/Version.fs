@@ -26,7 +26,7 @@ module Version =
 
     type Version = {Major: uint8; Minor: uint8; Patch: uint8}
 
-    let getVersion () :Version =
+    let get () :Version =
         let mutable version = new SDL_version()
         Native.SDL_GetVersion(&version)
         {Major = version.major; Minor=version.minor; Patch = version.patch}
