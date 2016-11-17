@@ -102,9 +102,12 @@ module Window =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern void SDL_DestroyWindow(IntPtr window)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_CreateWindowAndRenderer(int width, int height, uint32 window_flags, IntPtr* window, IntPtr* renderer)
+        extern int SDL_CreateWindowAndRenderer(int width, int height, uint32 window_flags, IntPtr* window, IntPtr* renderer)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern void SDL_DestroyRenderer(IntPtr renderer)//DONE
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern IntPtr SDL_GetRenderer(IntPtr  window)//DONE
+
 
         //display modes
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
@@ -399,4 +402,12 @@ module Window =
             if renderer<> IntPtr.Zero then
                 Native.SDL_DestroyRenderer(renderer)
 
-            None    
+            None
+
+    let getRenderer (window:Window) : Render.Renderer option =
+        let ptr =
+            Native.SDL_GetRenderer(window.Pointer)
+        if ptr=IntPtr.Zero then
+            None
+        else
+            Some (new Render.Renderer(ptr, fun p->()))

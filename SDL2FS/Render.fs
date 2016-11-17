@@ -5,8 +5,8 @@
 open System.Runtime.InteropServices
 open System
 open SDL
-open SDL.Texture
 open SDL.Surface
+open FSharp.NativeInterop
 
 [<System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute>]
 module Render = 
@@ -34,14 +34,27 @@ module Render =
     type Renderer = SDL.Utility.Pointer
 
     [<StructLayout(LayoutKind.Sequential)>]
-    type private SDL_RendererInfo =
+    type internal SDL_RendererInfo =
         struct
-            [<MarshalAs(UnmanagedType.LPStr)>]
-            val mutable name:string
+            val mutable name:IntPtr
             val mutable flags:uint32
             val mutable num_texture_formats:uint32
-            [<MarshalAs(UnmanagedType.ByValArray, SizeConst=16, ArraySubType = UnmanagedType.U4 )>]
-            val mutable texture_formats:uint32[]
+            val mutable texture_format0: uint32//this is goofy, but works for now
+            val mutable texture_format1: uint32
+            val mutable texture_format2: uint32
+            val mutable texture_format3: uint32
+            val mutable texture_format4: uint32
+            val mutable texture_format5: uint32
+            val mutable texture_format6: uint32
+            val mutable texture_format7: uint32
+            val mutable texture_format8: uint32
+            val mutable texture_format9: uint32
+            val mutable texture_format10: uint32
+            val mutable texture_format11: uint32
+            val mutable texture_format12: uint32
+            val mutable texture_format13: uint32
+            val mutable texture_format14: uint32
+            val mutable texture_format15: uint32
             val mutable max_texture_width:int
             val mutable max_texture_height:int
         end
@@ -55,37 +68,32 @@ module Render =
                                            
     module private Native =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern IntPtr SDL_CreateRenderer(IntPtr window, int index, uint32 flags)//DONE
+        extern IntPtr SDL_CreateRenderer(IntPtr window, int index, uint32 flags)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern void SDL_DestroyRenderer(IntPtr renderer)//DONE
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_RenderClear(IntPtr renderer)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_RenderPresent(IntPtr rendererr)//DONE
+        extern void SDL_RenderPresent(IntPtr renderer)//DONE
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetNumRenderDrivers()
+        extern int SDL_GetNumRenderDrivers()//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetRenderDriverInfo(int index, IntPtr info)
+        extern int SDL_GetRenderDriverInfo(int index, SDL_RendererInfo* info)//DONE
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern IntPtr SDL_CreateSoftwareRenderer(IntPtr surface)//DONE
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_CreateWindowAndRenderer(int width, int height, uint32 window_flags, IntPtr* window, IntPtr* renderer)
+        extern int SDL_GetRendererInfo(IntPtr renderer, SDL_RendererInfo*  info)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern IntPtr SDL_GetRenderer(IntPtr  window)
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-
-        extern int SDL_GetRendererInfo(IntPtr renderer, IntPtr info)
-        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetRendererOutputSize(IntPtr renderer, IntPtr w, IntPtr h)
+        extern int SDL_GetRendererOutputSize(IntPtr renderer, int* w, int* h)//DONE
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderTargetSupported(IntPtr renderer)
+        extern int SDL_RenderTargetSupported(IntPtr renderer)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_SetRenderTarget(IntPtr renderer, IntPtr texture)
+        extern int SDL_SetRenderTarget(IntPtr renderer, IntPtr texture)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern IntPtr SDL_GetRenderTarget(IntPtr renderer)
 
@@ -95,9 +103,9 @@ module Render =
         extern void SDL_RenderGetLogicalSize(IntPtr renderer, int* w, int* h)//DONE
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderSetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)
+        extern int SDL_RenderSetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_RenderGetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)
+        extern void SDL_RenderGetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)//DONE
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_RenderSetClipRect(IntPtr renderer, Geometry.SDL_Rect* rect)
@@ -202,3 +210,77 @@ module Render =
 
     //copyEx
     //readPixels
+
+    let private SDL_RendererInfoToRendererInfo (from:SDL_RendererInfo) : RendererInfo =
+        {Name=Utility.intPtrToStringAscii from.name;
+        Flags = from.flags |> int32 |> enum<Flags>; 
+        TextureFormats=[from.texture_format0;from.texture_format1;from.texture_format2;from.texture_format3;from.texture_format4;from.texture_format5;from.texture_format6;from.texture_format7;from.texture_format8;from.texture_format9;from.texture_format10;from.texture_format11;from.texture_format12;from.texture_format13;from.texture_format14;from.texture_format15] |> List.take (from.num_texture_formats |> int); 
+        MaximumTextureWidth=from.max_texture_width;//this is always returning as 0
+        MaximumTextureHeight=from.max_texture_height}//this is always returning as 0
+
+    let internal getDriverInfo (index:int) : RendererInfo =
+        let mutable result = new SDL_RendererInfo()
+
+        Native.SDL_GetRenderDriverInfo (index, &&result)
+        |> ignore
+
+        result
+        |> SDL_RendererInfoToRendererInfo
+
+    let getDrivers () : RendererInfo list=
+        [0..(Native.SDL_GetNumRenderDrivers()-1)]
+        |> List.map getDriverInfo
+
+    let getInfo (renderer:Renderer) : RendererInfo option =
+        let mutable info = new SDL_RendererInfo()
+        
+        let result = 
+            Native.SDL_GetRendererInfo (renderer.Pointer, &&info)
+
+        if result=0 then
+            Some (info |> SDL_RendererInfoToRendererInfo)
+        else
+            None
+
+    let getOutputSize (renderer:Renderer) : (int * int) option =
+        let mutable w = 0
+        let mutable h = 0
+
+        let result = 
+            Native.SDL_GetRendererOutputSize(renderer.Pointer, &&w, &&h)
+
+        if result = 0 then
+            Some (w,h)
+        else
+            None
+
+    let supportsRenderTarget (renderer:Renderer) : bool = 
+        Native.SDL_RenderTargetSupported(renderer.Pointer) <> 0
+
+    let setRenderTarget (texture:Texture.Texture option) (renderer:Renderer) : bool =
+        Native.SDL_SetRenderTarget(renderer.Pointer,if texture.IsSome then texture.Value.Pointer else IntPtr.Zero) <> 0
+
+    let setViewPort (rect:Geometry.Rectangle option) (renderer:Renderer) : bool =
+        if rect.IsSome then
+            let mutable r = Geometry.rectangleToSDL_Rect rect.Value
+            Native.SDL_RenderSetViewport(renderer.Pointer,&&r) <> 0
+        else
+            Native.SDL_RenderSetViewport(renderer.Pointer,IntPtr.Zero |> NativePtr.ofNativeInt<Geometry.SDL_Rect>) <> 0
+
+    let getViewPort (renderer:Renderer) : Geometry.Rectangle =
+        let mutable r = new Geometry.SDL_Rect()
+
+        Native.SDL_RenderGetViewport(renderer.Pointer, &&r)
+
+        r
+        |> Geometry.sdl_RectToRectangle
+
+//    let setClip (rect:Geometry.Rectangle option) (renderer:Renderer) : bool =
+//        false
+//
+//    let getClip (renderer:Renderer) : Geometry.Rectangle option =
+//        None
+
+    let isClipping (renderer:Renderer) : bool =
+        Native.SDL_RenderIsClipEnabled(renderer.Pointer) = 0
+
