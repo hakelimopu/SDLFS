@@ -17,6 +17,10 @@ module Utility =
 
     module internal Native =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern IntPtr SDL_malloc(uint32 size)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
+        extern IntPtr SDL_calloc(uint32 nmemb, uint32 size)
+        [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern void SDL_free(IntPtr mem);
 
     let private allocString (encoder:string->byte[]) (text:string) =
