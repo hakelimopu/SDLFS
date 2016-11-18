@@ -5,14 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>324b09c1-c797-48f2-84b9-23281ab8a01a</ProjectGuid>
+    <ProjectGuid>5e757e10-b05d-45cc-8a02-e6c8fceb5f73</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>DrawLine</RootNamespace>
-    <AssemblyName>DrawLine</AssemblyName>
+    <RootNamespace>Wandermaze</RootNamespace>
+    <AssemblyName>Wandermaze</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <Name>DrawLine</Name>
+    <Name>Wandermaze</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\DrawLine.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Wandermaze.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -34,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\DrawLine.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Wandermaze.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -52,7 +52,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SDL2FS.fsproj">
+    <ProjectReference Include="..\..\SDL2FS\SDL2FS.fsproj">
       <Name>SDL2FS</Name>
       <Project>{aacd42b3-8d59-4395-ba7b-4cc02ee319bb}</Project>
       <Private>True</Private>
@@ -69,7 +69,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\DrawLine.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Wandermaze.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
@@ -80,7 +80,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\DrawLine.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Wandermaze.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>

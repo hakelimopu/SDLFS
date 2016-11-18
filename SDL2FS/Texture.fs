@@ -25,11 +25,11 @@ module Texture =
 
     module private Native =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern IntPtr SDL_CreateTexture(IntPtr renderer, uint32 format, int access, int w, int h)
+        extern IntPtr SDL_CreateTexture(IntPtr renderer, uint32 format, int access, int w, int h)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_DestroyTexture(IntPtr texture);    
+        extern void SDL_DestroyTexture(IntPtr texture)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern IntPtr SDL_CreateTextureFromSurface(IntPtr renderer, IntPtr surface);
+        extern IntPtr SDL_CreateTextureFromSurface(IntPtr renderer, IntPtr surface)//DONE
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_QueryTexture(IntPtr texture, IntPtr format, IntPtr access, IntPtr w, IntPtr h)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
@@ -55,7 +55,7 @@ module Texture =
 
 
     let create format (access: Access) (w: int,h: int) (renderer:SDL.Utility.Pointer) =
-        let ptr = Native.SDL_CreateTexture(renderer.Pointer,format,access |> int,w / 1,h / 1)
+        let ptr = Native.SDL_CreateTexture(renderer.Pointer,format,access |> int,w,h)
         new SDL.Utility.Pointer(ptr, Native.SDL_DestroyTexture)
 
     let fromSurface (renderer:SDL.Utility.Pointer) surface =

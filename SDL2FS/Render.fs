@@ -140,12 +140,12 @@ module Render =
         extern int SDL_RenderDrawLines(IntPtr renderer, IntPtr   points, int count)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderDrawRect(IntPtr renderer, IntPtr rect)
+        extern int SDL_RenderDrawRect(IntPtr renderer, Geometry.SDL_Rect* rect)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_RenderDrawRects(IntPtr renderer, IntPtr rects, int count)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderFillRect(IntPtr renderer, IntPtr rect)
+        extern int SDL_RenderFillRect(IntPtr renderer, Geometry.SDL_Rect* rect)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_RenderFillRects(IntPtr renderer, IntPtr rects, int count)
 
@@ -208,8 +208,16 @@ module Render =
     let copy (texture:SDL.Texture.Texture) (srcrect:SDL.Geometry.Rectangle option) (dstrect:SDL.Geometry.Rectangle option) (renderer:Renderer) :bool =
         SDL.Geometry.withSDLRectPointer(fun src -> SDL.Geometry.withSDLRectPointer(fun dst -> 0 = Native.SDL_RenderCopy(renderer.Pointer,texture.Pointer,src,dst)) dstrect) srcrect
 
-    //SDL_RenderCopyEx
-    //SDL_RenderReadPixels
+    let copyEx (texture:SDL.Texture.Texture) (srcrect:SDL.Geometry.Rectangle option) (dstrect:SDL.Geometry.Rectangle option) (angle:float) (center:Geometry.Point option) (flip:Flip) (renderer:Renderer) :bool =
+        SDL.Geometry.withSDLRectPointer(
+            fun src -> 
+                SDL.Geometry.withSDLRectPointer(
+                    fun dst -> 
+                        if center.IsSome then
+                            let mutable pt = Geometry.pointToSDL_Point center.Value
+                            0 = Native.SDL_RenderCopyEx(renderer.Pointer,texture.Pointer,src,dst, angle, (&&pt) |> NativePtr.toNativeInt , flip |> int)
+                        else
+                            0 = Native.SDL_RenderCopyEx(renderer.Pointer,texture.Pointer,src,dst, angle, IntPtr.Zero, flip |> int)) dstrect) srcrect
 
     let private SDL_RendererInfoToRendererInfo (from:SDL_RendererInfo) : RendererInfo =
         {Name=Utility.intPtrToStringAscii from.name;
@@ -320,52 +328,55 @@ module Render =
     let drawPoint (point:Geometry.Point) (renderer:Renderer) : bool =
         Native.SDL_RenderDrawPoint(renderer.Pointer,point.X,point.Y) = 0
 
-    let drawPoints (points:Geometry.Point list) (renderer:Renderer) : bool = 
-        let ptr = Utility.Native.SDL_calloc(points.Length |> uint32, 8u)
+    let private drawThings<'Thing,'NativeThing when 'NativeThing:unmanaged> (thingSize:uint32) (convertor:'Thing->'NativeThing) (renderFunction: (IntPtr * IntPtr * int)->int) (things:'Thing list) (renderer:Renderer) : bool =
+        let ptr = Utility.Native.SDL_calloc(things.Length |> uint32, thingSize)
 
-        let np = ptr |> NativePtr.ofNativeInt<Geometry.SDL_Point>
+        let np = ptr |> NativePtr.ofNativeInt<'NativeThing>
 
-        points
+        things
         |> List.fold
             (fun p pt -> 
-                NativePtr.write p (pt |> Geometry.pointToSDL_Point)
+                NativePtr.write p (pt |> convertor)
                 NativePtr.add p 1) np
         |> ignore
 
         let result = 
-            Native.SDL_RenderDrawPoints(renderer.Pointer, ptr, points.Length) = 0
+            renderFunction(renderer.Pointer, ptr, things.Length) = 0
 
         Utility.Native.SDL_free(ptr)
 
         result
+
+    let drawPoints (points:Geometry.Point list) (renderer:Renderer) : bool = 
+        drawThings<Geometry.Point, Geometry.SDL_Point> 8u Geometry.pointToSDL_Point Native.SDL_RenderDrawPoints points renderer
 
     let drawLine (first:Geometry.Point) (second:Geometry.Point) (renderer:Renderer) : bool =
         Native.SDL_RenderDrawLine(renderer.Pointer, first.X, first.Y, second.X, second.Y) = 0
 
     let drawLines (points:Geometry.Point list) (renderer:Renderer) : bool = 
-        let ptr = Utility.Native.SDL_calloc(points.Length |> uint32, 8u)
+        drawThings<Geometry.Point, Geometry.SDL_Point> 8u Geometry.pointToSDL_Point Native.SDL_RenderDrawLines points renderer
 
-        let np = ptr |> NativePtr.ofNativeInt<Geometry.SDL_Point>
+    let drawRectangle (rect:Geometry.Rectangle option) (renderer:Renderer) : bool =
+        if rect.IsSome then
+            let mutable r = Geometry.rectangleToSDL_Rect rect.Value
 
-        points
-        |> List.fold
-            (fun p pt -> 
-                NativePtr.write p (pt |> Geometry.pointToSDL_Point)
-                NativePtr.add p 1) np
-        |> ignore
+            Native.SDL_RenderDrawRect(renderer.Pointer, &&r) = 0
+        else    
+            Native.SDL_RenderDrawRect(renderer.Pointer, IntPtr.Zero |> NativePtr.ofNativeInt<Geometry.SDL_Rect>) = 0
 
-        let result = 
-            Native.SDL_RenderDrawLines(renderer.Pointer, ptr, points.Length) = 0
+    let drawRectangles (points:Geometry.Rectangle list) (renderer:Renderer) : bool = 
+        drawThings<Geometry.Rectangle, Geometry.SDL_Rect> 16u Geometry.rectangleToSDL_Rect Native.SDL_RenderDrawRects points renderer
 
-        Utility.Native.SDL_free(ptr)
+    let fillRectangle (rect:Geometry.Rectangle option) (renderer:Renderer) : bool =
+        if rect.IsSome then
+            let mutable r = Geometry.rectangleToSDL_Rect rect.Value
 
-        result
+            Native.SDL_RenderFillRect(renderer.Pointer, &&r) = 0
+        else    
+            Native.SDL_RenderFillRect(renderer.Pointer, IntPtr.Zero |> NativePtr.ofNativeInt<Geometry.SDL_Rect>) = 0
 
-    //SDL_RenderDrawRect
-    //SDL_RenderDrawRects
-
-    //SDL_RenderFillRect
-    //SDL_RenderFillRects
+    let fillRectangles (points:Geometry.Rectangle list) (renderer:Renderer) : bool = 
+        drawThings<Geometry.Rectangle, Geometry.SDL_Rect> 16u Geometry.rectangleToSDL_Rect Native.SDL_RenderFillRects points renderer
 
     //SDL_GL_BindTexture
     //SDL_GL_UnbindTexture
@@ -373,3 +384,4 @@ module Render =
     //SDL_SetRenderDrawBlendMode
     //SDL_GetRenderDrawBlendMode
 
+    //SDL_RenderReadPixels
