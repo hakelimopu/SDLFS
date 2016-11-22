@@ -140,6 +140,39 @@ let onDraw (renderer:Render.Renderer) (state:System.Random) : unit =
     renderer
     |> Render.present
 
+type RenderingContext =
+    {Renderer:Render.Renderer}
+
+///////////////////////////////////////////////////////////
+//Splash Screen
+///////////////////////////////////////////////////////////
+
+type SplashScreenResult = Proceed
+
+type SplashScreenState = 
+    {Start:System.DateTimeOffset;
+    Until:System.DateTimeOffset}
+
+let rec splashScreenEventPump (context:RenderingContext) (state:SplashScreenState) : SplashScreenResult option =
+    //TODO - draw something!
+    let current = System.DateTimeOffset.Now
+    if current >= state.Until then //if time is up
+        Some Proceed
+    else
+        //time is not up
+        let event = Event.poll()
+
+        if event.IsNone then
+            None
+        elif event.Value.isKeyDownEvent then
+            Some Proceed
+        else
+            splashScreenEventPump context state
+
+let splashScreen (context:RenderingContext): SplashScreenResult option =
+    {Start = System.DateTimeOffset.Now; Until = System.DateTimeOffset.Now.AddSeconds(10.0)}
+    |> splashScreenEventPump context
+
 let runGame () =
     use system = new Init.System(Init.Init.Video ||| Init.Init.Events)
 
@@ -149,7 +182,9 @@ let runGame () =
 
     let state = new System.Random()
 
-    eventOnlyEventPump Event.poll onEvent (onDraw renderer) state
+    splashScreen {Renderer=renderer}
+    |> ignore
+    //eventOnlyEventPump Event.poll onEvent (onDraw renderer) state
 
 [<EntryPoint>]
 let main argv = 

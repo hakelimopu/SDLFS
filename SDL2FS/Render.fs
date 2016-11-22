@@ -12,13 +12,6 @@ open FSharp.NativeInterop
 module Render = 
 
     [<Flags>]
-    type BlendMode =
-        | None  = 0x00000000
-        | Blend = 0x00000001
-        | Add   = 0x00000002
-        | Mod   = 0x00000004
-
-    [<Flags>]
     type Flags = 
         | Software      = 0x00000001
         | Accelerated   = 0x00000002
@@ -70,49 +63,49 @@ module Render =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern IntPtr SDL_CreateRenderer(IntPtr window, int index, uint32 flags)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_DestroyRenderer(IntPtr renderer)//DONE
+        extern void SDL_DestroyRenderer(IntPtr renderer)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderClear(IntPtr renderer)//DONE
+        extern int SDL_RenderClear(IntPtr renderer)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_RenderPresent(IntPtr renderer)//DONE
+        extern void SDL_RenderPresent(IntPtr renderer)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetNumRenderDrivers()//DONE
+        extern int SDL_GetNumRenderDrivers()
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetRenderDriverInfo(int index, SDL_RendererInfo* info)//DONE
+        extern int SDL_GetRenderDriverInfo(int index, SDL_RendererInfo* info)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern IntPtr SDL_CreateSoftwareRenderer(IntPtr surface)//DONE
+        extern IntPtr SDL_CreateSoftwareRenderer(IntPtr surface)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetRendererInfo(IntPtr renderer, SDL_RendererInfo*  info)//DONE
+        extern int SDL_GetRendererInfo(IntPtr renderer, SDL_RendererInfo*  info)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetRendererOutputSize(IntPtr renderer, int* w, int* h)//DONE
+        extern int SDL_GetRendererOutputSize(IntPtr renderer, int* w, int* h)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderTargetSupported(IntPtr renderer)//DONE
+        extern int SDL_RenderTargetSupported(IntPtr renderer)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_SetRenderTarget(IntPtr renderer, IntPtr texture)//DONE
+        extern int SDL_SetRenderTarget(IntPtr renderer, IntPtr texture)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern IntPtr SDL_GetRenderTarget(IntPtr renderer)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderSetLogicalSize(IntPtr renderer, int w, int h)//DONE
+        extern int SDL_RenderSetLogicalSize(IntPtr renderer, int w, int h)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_RenderGetLogicalSize(IntPtr renderer, int* w, int* h)//DONE
+        extern void SDL_RenderGetLogicalSize(IntPtr renderer, int* w, int* h)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderSetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)//DONE
+        extern int SDL_RenderSetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_RenderGetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)//DONE
+        extern void SDL_RenderGetViewport(IntPtr renderer, Geometry.SDL_Rect* rect)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderSetClipRect(IntPtr renderer, Geometry.SDL_Rect* rect)//DONE
+        extern int SDL_RenderSetClipRect(IntPtr renderer, Geometry.SDL_Rect* rect)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern void SDL_RenderGetClipRect(IntPtr renderer, Geometry.SDL_Rect* rect)//DONE
+        extern void SDL_RenderGetClipRect(IntPtr renderer, Geometry.SDL_Rect* rect)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderIsClipEnabled(IntPtr renderer)//DONE
+        extern int SDL_RenderIsClipEnabled(IntPtr renderer)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_RenderSetScale(IntPtr  renderer, float scaleX, float scaleY)
@@ -120,14 +113,14 @@ module Render =
         extern void SDL_RenderGetScale(IntPtr renderer, float* scaleX, float* scaleY)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_SetRenderDrawColor(IntPtr renderer, uint8 r, uint8 g, uint8 b, uint8 a)//DONE
+        extern int SDL_SetRenderDrawColor(IntPtr renderer, uint8 r, uint8 g, uint8 b, uint8 a)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetRenderDrawColor(IntPtr renderer, uint8*  r, uint8*  g, uint8*  b, uint8*  a)//DONE
+        extern int SDL_GetRenderDrawColor(IntPtr renderer, uint8*  r, uint8*  g, uint8*  b, uint8*  a)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_SetRenderDrawBlendMode(IntPtr renderer, int blendMode)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GetRenderDrawBlendMode(IntPtr renderer, IntPtr blendMode)
+        extern int SDL_GetRenderDrawBlendMode(IntPtr renderer, int* blendMode)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_RenderDrawPoint(IntPtr renderer, int x, int y)
@@ -150,16 +143,16 @@ module Render =
         extern int SDL_RenderFillRects(IntPtr renderer, IntPtr rects, int count)
 
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderCopy(IntPtr renderer, IntPtr texture, IntPtr srcrect, IntPtr dstrect)//DONE
+        extern int SDL_RenderCopy(IntPtr renderer, IntPtr texture, IntPtr srcrect, IntPtr dstrect)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_RenderCopyEx(IntPtr renderer, IntPtr  texture, IntPtr srcrect, IntPtr dstrect, double angle, IntPtr  center, int flip)
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_RenderReadPixels(IntPtr  renderer,IntPtr rect,uint32 format,IntPtr pixels, int pitch)
+        extern int SDL_RenderReadPixels(IntPtr  renderer,IntPtr rect,uint32 format,IntPtr pixels, int pitch)//TODO
         
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GL_BindTexture(IntPtr texture, IntPtr texw, IntPtr texh)
+        extern int SDL_GL_BindTexture(IntPtr texture, IntPtr texw, IntPtr texh)//TODO
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_GL_UnbindTexture(IntPtr texture)
+        extern int SDL_GL_UnbindTexture(IntPtr texture)//TODO
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     // Renderer
@@ -381,7 +374,15 @@ module Render =
     //SDL_GL_BindTexture
     //SDL_GL_UnbindTexture
 
-    //SDL_SetRenderDrawBlendMode
-    //SDL_GetRenderDrawBlendMode
+    let setDrawBlendMode (blendMode:Texture.BlendMode) (renderer:Renderer) : bool =
+        Native.SDL_SetRenderDrawBlendMode(renderer.Pointer, blendMode |> int) = 0
+
+    let getDrawBlendMode (renderer: Renderer) : Texture.BlendMode option =
+        let mutable blendMode: int = 0
+        let result = Native.SDL_GetRenderDrawBlendMode(renderer.Pointer, &&blendMode)
+        if result = 0 then
+            Some (blendMode |> enum<Texture.BlendMode>)
+        else
+            None
 
     //SDL_RenderReadPixels

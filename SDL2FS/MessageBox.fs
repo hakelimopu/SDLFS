@@ -83,12 +83,12 @@ module MessageBox =
         Window:SDL.Window.Window option;
         Title:string;
         Message:string;
-        Buttons:seq<ButtonData>;
+        Buttons:ButtonData list;
         ColorScheme:ColorScheme option}
 
     module private Native =
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
-        extern int SDL_ShowMessageBox(IntPtr messageboxdata, IntPtr buttonid);
+        extern int SDL_ShowMessageBox(IntPtr messageboxdata, int* buttonid);
         [<DllImport(@"SDL2.dll", CallingConvention = CallingConvention.Cdecl)>]
         extern int SDL_ShowSimpleMessageBox(uint32 flags, IntPtr title, IntPtr message, IntPtr window);
 
