@@ -1,39 +1,14 @@
 ﻿open SDL
-open Pixel
 open Geometry
+open RenderingContext
 
-type EventSource<'TEvent> = unit -> 'TEvent option
-type EventHandler<'TEvent,'TState> = 'TEvent -> 'TState -> 'TState option
-type PresentationHandler<'TState> = 'TState -> unit
-
-let rec eventOnlyEventPump 
-        (eventSource: EventSource<'TEvent>) 
-        (eventHandler: EventHandler<'TEvent,'TState>) 
-        (presentationHandler: PresentationHandler<'TState>) 
-        (state: 'TState) :unit =
-    presentationHandler state
-    match eventSource() with
-    | Some event ->
-        (event, state) 
-        ||> eventHandler
-        |> Option.iter (eventOnlyEventPump eventSource eventHandler presentationHandler)
-    | None ->
-        state
-        |>eventOnlyEventPump eventSource eventHandler presentationHandler
-
-let onEvent (event:Event.Event) (state) =
-    if event.isQuitEvent then
-        None
-    else    
-        Some state
-
-let ScreenRectangle = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = 640; Height=480}
-let BoardViewRectangle  = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = 480; Height=480}
+let ScreenRectangle = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = 1020; Height=768}
+let BoardViewRectangle  = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = 768; Height=768}
 
 let BoardColumns = 32
 let BoardRows = 32
 
-let BoardCellRectangle = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = BoardViewRectangle.Width / BoardColumns; Height = BoardViewRectangle.Height / BoardHeight}
+let BoardCellRectangle = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = BoardViewRectangle.Width / BoardColumns; Height = BoardViewRectangle.Height / BoardRows}
 
 type BoardCell = Gold | Block | Fire | Water | Empty
 
@@ -41,7 +16,9 @@ type BoardColumn =
     {Cells:Map<int, BoardCell>}
     member this.getGoldLeft () : int =
         this.Cells
-        |> Map.fold (fun acc _ v -> if v = Gold then acc + 1 else acc ) 0
+        |> Map.filter (fun _ v -> v = Gold)
+        |> Map.toList
+        |> List.length
     static member create (height:int) : BoardColumn =
         let cells = 
             [0..(height-1)]
@@ -133,46 +110,6 @@ let getInitialLevelState (level:int) =
     | 31 -> {Gold= 64; Blocks=128; Fire=512; Water=1}
     | _  -> {Gold= 64; Blocks=128; Fire=512; Water=0}
 
-let onDraw (renderer:Render.Renderer) (state:System.Random) : unit =
-    renderer
-    |>* Render.clear
-    
-    renderer
-    |> Render.present
-
-type RenderingContext =
-    {Renderer:Render.Renderer}
-
-///////////////////////////////////////////////////////////
-//Splash Screen
-///////////////////////////////////////////////////////////
-
-type SplashScreenResult = Proceed
-
-type SplashScreenState = 
-    {Start:System.DateTimeOffset;
-    Until:System.DateTimeOffset}
-
-let rec splashScreenEventPump (context:RenderingContext) (state:SplashScreenState) : SplashScreenResult option =
-    //TODO - draw something!
-    let current = System.DateTimeOffset.Now
-    if current >= state.Until then //if time is up
-        Some Proceed
-    else
-        //time is not up
-        let event = Event.poll()
-
-        if event.IsNone then
-            None
-        elif event.Value.isKeyDownEvent then
-            Some Proceed
-        else
-            splashScreenEventPump context state
-
-let splashScreen (context:RenderingContext): SplashScreenResult option =
-    {Start = System.DateTimeOffset.Now; Until = System.DateTimeOffset.Now.AddSeconds(10.0)}
-    |> splashScreenEventPump context
-
 let runGame () =
     use system = new Init.System(Init.Init.Video ||| Init.Init.Events)
 
@@ -182,9 +119,9 @@ let runGame () =
 
     let state = new System.Random()
 
-    splashScreen {Renderer=renderer}
+    {Renderer=renderer}
+    |> SplashScreen.run 
     |> ignore
-    //eventOnlyEventPump Event.poll onEvent (onDraw renderer) state
 
 [<EntryPoint>]
 let main argv = 
