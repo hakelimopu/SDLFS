@@ -45,7 +45,6 @@ let rec renderPatterns (renderer:Render.Renderer) (scale:Geometry.Point) (backgr
         renderPattern renderer scale background foreground offset head
         renderPatterns renderer scale background foreground nextOffset (offset |> nextOffset) tail
 
-
 let patterns = 
     [("\u0000",{data=[0; 0; 0; 0; 0; 0; 0; 0]; width=8});
     ("\u0001",{data=[126; 129; 165; 129; 189; 153; 129; 126]; width=8});
@@ -333,3 +332,7 @@ let patterns =
     ("berries", makePattern(["........"; "........"; ".....X.."; "..X....."; ".....X.."; "........"; "........"; "........"], 8));
     ("key", makePattern(["........"; "..XXX..."; "..X.X..."; "..XXX..."; "...X...."; "..XX...."; "..XX...."; "........"], 8))]
     |> Map.ofList
+
+let fromText (text:string) (patterns:Map<string,Pattern>) :Pattern list =
+    [0..(text.Length-1)]
+    |> List.map (fun index -> patterns.[text.Substring(index,1)])

@@ -11,8 +11,6 @@ type State =
 
 
 let rec eventPump (context:RenderingContext) (state:State) : Result option =
-    let random = new System.Random()
-    
     Render.setDrawColor {Pixel.Color.Red = 0uy; Green=0uy; Blue=0uy; Alpha=255uy} context.Renderer |> ignore
     
     context.Renderer
@@ -24,7 +22,7 @@ let rec eventPump (context:RenderingContext) (state:State) : Result option =
     let nextOffset (start:Geometry.Point) : Geometry.Point =
         {start with X = start.X + 8}
 
-    Patterns.renderPatterns context.Renderer {Geometry.Point.X = 3; Y = 3} (Some {Pixel.Color.Red = 0uy; Green=0uy; Blue=0uy; Alpha=255uy}) (Some {Pixel.Color.Red = 0uy; Green=255uy; Blue=0uy; Alpha=255uy}) nextOffset {Geometry.Point.X = 158; Y = 124} patterns
+    Patterns.renderPatterns context.Renderer {Geometry.Point.X = 1; Y = 1} (Some {Pixel.Color.Red = 0uy; Green=0uy; Blue=0uy; Alpha=255uy}) (Some {Pixel.Color.Red = 0uy; Green=255uy; Blue=0uy; Alpha=255uy}) nextOffset {Geometry.Point.X = 158; Y = 124} patterns
 
     context.Renderer
     |> Render.present

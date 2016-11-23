@@ -117,10 +117,16 @@ let runGame () =
 
     use renderer = Render.create window None Render.Flags.Accelerated
 
+    Render.setLogicalSize (340,256) renderer |> ignore
+
     let state = new System.Random()
 
-    {Renderer=renderer}
+    let context = 
+        {Renderer=renderer}
+
+    context
     |> SplashScreen.run 
+    |> Option.map (fun _ -> MainMenu.run context)
     |> ignore
 
 [<EntryPoint>]
