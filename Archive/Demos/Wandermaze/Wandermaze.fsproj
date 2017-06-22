@@ -51,6 +51,7 @@
     <Compile Include="Patterns.fs" />
     <Compile Include="RenderingContext.fs" />
     <Compile Include="SplashScreen.fs" />
+    <Compile Include="PlayGame.fs" />
     <Compile Include="MainMenu.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />

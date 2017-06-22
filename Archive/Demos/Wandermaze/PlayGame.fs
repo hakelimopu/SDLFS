@@ -1,14 +1,10 @@
-﻿open SDL
-open Geometry
-open RenderingContext
+﻿module PlayGame
 
-let ScreenRectangle = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = 1020; Height=768}
-let BoardViewRectangle  = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = 768; Height=768}
+open RenderingContext
+open SDL
 
 let BoardColumns = 32
 let BoardRows = 32
-
-let BoardCellRectangle = {SDL.Geometry.Rectangle.X = 0; Y = 0; Width = BoardViewRectangle.Width / BoardColumns; Height = BoardViewRectangle.Height / BoardRows}
 
 type BoardCell = Gold | Block | Fire | Water | Empty
 
@@ -19,6 +15,8 @@ type BoardColumn =
         |> Map.filter (fun _ v -> v = Gold)
         |> Map.toList
         |> List.length
+    member this.setCell (row:int, cell:BoardCell) : BoardColumn =
+        {Cells = this.Cells |> Map.add row cell}
     static member create (height:int) : BoardColumn =
         let cells = 
             [0..(height-1)]
@@ -31,7 +29,7 @@ type Board =
     member this.getGoldLeft() : int =
         this.Columns
         |> Map.fold (fun acc _ v -> v.getGoldLeft()) 0
-    static member create (width:int) (height:int) : Board =
+    static member create (width:int, height:int) : Board =
         let columns =
             [0..(width-1)]
             |> List.map(fun index->index, (BoardColumn.create height))
@@ -110,26 +108,42 @@ let getInitialLevelState (level:int) =
     | 31 -> {Gold= 64; Blocks=128; Fire=512; Water=1}
     | _  -> {Gold= 64; Blocks=128; Fire=512; Water=0}
 
-let runGame () =
-    use system = new Init.System(Init.Init.Video ||| Init.Init.Events)
+type State = 
+    {LevelState:LevelState;
+    PlayerState:PlayerState;
+    Board:Board;}
+    member this.changeLevelState (changeFunc:LevelState->LevelState) : State=
+        {this with LevelState=changeFunc(this.LevelState)}
+    member this.changePlayerState (changeFunc:PlayerState->PlayerState) : State=
+        {this with PlayerState=changeFunc(this.PlayerState)}
+    member this.changeBoard (changeFunc:Board->Board) : State=
+        {this with Board=changeFunc(this.Board)}
+    static member create(width:int, height:int) : Board =
+        let random = new System.Random();
+        let playerState = {PlayerState.Level = 0; Column = random.Next(width); Row = random.Next(height); Alive = true; Score = 0; Water = 0; Moves = 0}
+        let levelState = getInitialLevelState(playerState.Level)
+        let board = Board.create(width,height)
+        
 
-    use window = Window.create ("Wandermaze", Window.Position.Centered, ScreenRectangle.Width,ScreenRectangle.Height, Window.Flags.None)
 
-    use renderer = Render.create window None Render.Flags.Accelerated
-
-    Render.setLogicalSize (340,256) renderer |> ignore
-
-    let state = new System.Random()
-
-    let context = 
-        {Renderer=renderer}
-
-    context
-    |> SplashScreen.run 
-    |> Option.map (fun _ -> MainMenu.run context)
+let rec eventPump (context:RenderingContext) (state:State) : unit =
+    context.Renderer
+    |> Render.setDrawColor {Pixel.Color.Red = 0uy; Green=0uy; Blue=0uy; Alpha=255uy}  
     |> ignore
 
-[<EntryPoint>]
-let main argv = 
-    runGame()
-    0
+    context.Renderer
+    |> Render.clear
+    |> ignore
+
+    context.Renderer
+    |> Render.present
+    |> ignore
+
+    match Event.poll() with
+    | Some (Event.Quit _)    -> ()
+    | _                      -> eventPump context state
+
+let run (context:RenderingContext): unit =
+    {Substate = None}
+    |> eventPump context
+
