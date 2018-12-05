@@ -1,3 +1,5 @@
+This repo has moved to https://gitlab.com/GrumpyGameDev/fsharp/SDLFS
+
 # SDLFS
 An SDL wrapper for F#
 
